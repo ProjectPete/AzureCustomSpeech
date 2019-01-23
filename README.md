@@ -6,7 +6,7 @@ You can take as little as ten minutes audio from friends, family or a video of y
 
 All you need is a free Azure subscription and a free Speech Service key.
 
-Read all about this project on the [Microsoft Azure Developer blog](https://social.technet.microsoft.com/wiki/contents/articles/52457.transcribe-video-and-make-your-own-custom-voices-with-azure-speech-services.aspx) 
+Read all about this project on [TechNet Wiki](https://social.technet.microsoft.com/wiki/contents/articles/52457.transcribe-video-and-make-your-own-custom-voices-with-azure-speech-services.aspx) 
 
 This is for the Microsoft [IT Implementer](https://www.microsoft.com/en-gb/atwork/it-implementer/) initiative. 
 
