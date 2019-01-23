@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="DigitalEyes.VoiceToText.Desktop.Views.AudioAndMarkerControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:local="clr-namespace:DigitalEyes.VoiceToText.Desktop.ViewModels"
+        mc:Ignorable="d" 
+        xmlns:views="clr-namespace:DigitalEyes.VoiceToText.Desktop.Views"
+        xmlns:helpers="clr-namespace:DigitalEyes.VoiceToText.Desktop.Helpers"
+        d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <views:PassSelfToDataContextHackConverter x:Key="PassSelfToDataContextHackConverter"/>
+        <views:WidthScaleConverter x:Key="WidthScaleConverter"/>
+        <views:LeftMarginConverter x:Key="LeftMarginConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Rectangle IsHitTestVisible="False" x:Name="recMarker" Width="3" Fill="Black" Opacity="0.6" VerticalAlignment="Stretch" HorizontalAlignment="Left" Panel.ZIndex="998">
+            <Rectangle.Tag>
+                <MultiBinding Converter="{StaticResource PassSelfToDataContextHackConverter}" >
+                    <Binding />
+                    <Binding RelativeSource="{RelativeSource Self}"/>
+                </MultiBinding>
+            </Rectangle.Tag>
+            <Rectangle.RenderTransform>
+                <TranslateTransform x:Name="ttMarker"/>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+        
+        <Rectangle x:Name="MarkerRectangle" Opacity="0.4" VerticalAlignment="Top" Fill="Red" Height="100" HorizontalAlignment="Left">
+            <Rectangle.Style>
+                <Style TargetType="Rectangle">
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <TranslateTransform>
+                                <TranslateTransform.X>
+                                    <MultiBinding Converter="{StaticResource LeftMarginConverter}" ConverterParameter="test" >
+                                        <Binding Path="StartMills" RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType=FrameworkElement}" />
+                                        <Binding Path="Scale" ElementName="sldGain" />
+                                    </MultiBinding>
+                                </TranslateTransform.X>
+                            </TranslateTransform>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Rectangle.Style>
+            <Rectangle.Width>
+                <MultiBinding Converter="{StaticResource WidthScaleConverter}" >
+                    <Binding Path="Scale" />
+                    <Binding Path="MarkerWidth" />
+                </MultiBinding>
+            </Rectangle.Width>
+        </Rectangle>
+
+        <MediaElement LoadedBehavior="Manual" Source="{Binding FilePath, Mode=OneWay, 
+            NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True}" Width="20" Height="20"
+            TargetUpdated="OnTargetUpdated" MediaEnded="OnMediaEnded" Loaded="OnLoaded" />
+        
+    </Grid>
+</UserControl>

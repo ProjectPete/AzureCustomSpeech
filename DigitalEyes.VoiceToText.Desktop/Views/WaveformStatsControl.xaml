@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="DigitalEyes.VoiceToText.Desktop.Views.WaveformStatsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DigitalEyes.VoiceToText.Desktop.Views"
+             mc:Ignorable="d" 
+             HorizontalAlignment="Left" VerticalAlignment="Top">
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="Margin" Value="2"/>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="File" Margin="2" />
+        <TextBlock Grid.Column="1" x:Name="txtName" Margin="2" FontWeight="Bold" Text="{Binding FileName}" />
+        <TextBlock Grid.Row="1" Text="Sample rate (kbps)" Margin="2"  />
+        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtSampleRate" Margin="2" FontWeight="Bold" Text="{Binding WaveFormat.SampleRate}" />
+        <TextBlock Grid.Row="2" Text="Bits per sample" Margin="2" />
+        <TextBlock Grid.Row="2" Grid.Column="1" x:Name="txtBps" Margin="2" FontWeight="Bold" Text="{Binding WaveFormat.BitsPerSample}"/>
+        <TextBlock Grid.Row="3" Text="Encoding" Margin="2" />
+        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="txtEncoding" Margin="2" FontWeight="Bold" Text="{Binding WaveFormat.Encoding}"/>
+        <TextBlock Grid.Row="4" Text="Channels" Margin="2" />
+        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtChannels" Margin="2" FontWeight="Bold" Text="{Binding WaveFormat.Channels}"/>
+        <TextBlock Grid.Row="5" Text="Duration" Margin="2" />
+        <TextBlock Grid.Row="5" Grid.Column="1" x:Name="txtDuration" Margin="2" FontWeight="Bold" Text="{Binding Duration.TimeSpan, StringFormat={}{0:hh\\:mm\\:ss\\:f}}"/>
+        <!--<TextBlock Grid.Row="4" Text="Plot frequency" Margin="2" />
+        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="txtPlotFreq" Margin="2" Text="{Binding ActualPointsCollected}"/>-->
+    </Grid>
+</UserControl>
