@@ -1,4 +1,6 @@
-# Azure: Video/Audio Transcription, Custom Speech, Subtitling (captioning)
+# Azure Cognitive Services - Speech Services
+
+## Video/Audio Transcription, Custom Speech, Subtitling (captioning)
 
 This project demonstrates how to transcribe audio from your media. With this tool, you can then tidy up the transcribed text into bite-sized chunks and feed back into Azure Custom Voice service. In a few simple steps you can recreate the voice and make the original speaker say anything you want!
 
