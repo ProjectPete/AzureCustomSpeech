@@ -252,9 +252,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SampleMedia\DevOps1_Full.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="SampleMedia\DevOps1_Intro.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
