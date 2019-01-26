@@ -18,7 +18,7 @@ All you need is a [FREE Azure subscription](https://azure.microsoft.com/en-us/fr
 
 Read all about this project on [TechNet Wiki](https://social.technet.microsoft.com/wiki/contents/articles/52457.transcribe-video-and-make-your-own-custom-voices-with-azure-speech-services.aspx) 
 
-This Cognitive Services implementation example is a contribution to the Microsoft [IT Implementer](https://www.microsoft.com/en-gb/atwork/it-implementer/) initiative. Demystifying the latest tech and demonstrating how to actually impliment it yourself!
+This Cognitive Services implementation example is a contribution to the Microsoft [IT Implementer](https://www.microsoft.com/en-gb/atwork/it-implementer/) initiative. Demystifying the latest tech and demonstrating how to actually implement it yourself!
 
 <br />
 <br />
