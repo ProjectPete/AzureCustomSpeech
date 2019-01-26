@@ -667,6 +667,13 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                         }
                     }
 
+                    var formatAnsw = MessageBox.Show($"Click YES to export for Custom Voice.{Environment.NewLine}Click NO to export for Acoustic Dataset.{Environment.NewLine}Click CANCEL to take no action.", "Which index file format?", MessageBoxButton.YesNoCancel);
+                    if (answ == MessageBoxResult.Cancel)
+                    {
+                        LockUserInterface = false;
+                        return;
+                    }
+
                     var dateFolder = $"{DateTime.Now.ToString("yyyMMdd_HHmmss")}";
                     var exportFolder = Path.Combine(Settings.Default.ProjectsFolder, selectedProject.FolderName, dateFolder);
                     var exportRawFolder = Path.Combine(Settings.Default.ProjectsFolder, selectedProject.FolderName, dateFolder, "RAW");
@@ -682,7 +689,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                         var index = 1;
                         foreach (var snip in SelectedProject.Snippets)
                         {
-                            transcriptionsFileText += CreateTextPartFilesFromSnippet(exportRawFolder, snip, ref index);
+                            transcriptionsFileText += CreateTextPartFilesFromSnippet(exportRawFolder, snip, formatAnsw, ref index);
                         }
                     }
                     else
@@ -695,8 +702,14 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                         {
                             var fileNumberString = $"{(ix++).ToString().PadLeft(4, '0')}";
                             var fileName = $"{fileNumberString}.wav";
-                            //transcriptionsFileText += $"{fileName}\t{snip.RawText}{Environment.NewLine}";
-                            transcriptionsFileText += $"{fileNumberString}\t{snip.RawText}{Environment.NewLine}";
+                            if (formatAnsw == MessageBoxResult.Yes)
+                            {
+                                transcriptionsFileText += $"{fileNumberString}\t{snip.RawText}{Environment.NewLine}"; // Custom Voice format is just a number
+                            }
+                            else
+                            {
+                                transcriptionsFileText += $"{fileName}\t{snip.RawText}{Environment.NewLine}"; // Acoustic Dataset requires .wav extension with the number
+                            }
                             var newFileCopy = Path.Combine(exportRawFolder, fileName);
                             File.Copy(snip.FilePath, newFileCopy); // we're taking the whole snippet, so make a copy
                             WavFileUtils.ChangeWaveFormat(newFileCopy, 16000, 16, 1);
@@ -732,7 +745,114 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
          }
 
-        private string CreateTextPartFilesFromSnippet(string ExportFolder, TrackSnippetViewModel snip, ref int index)
+        RelayCommand generateTTMLCommand;
+        public RelayCommand GenerateTTMLCommand
+        {
+            get
+            {
+                if (generateTTMLCommand == null)
+                {
+                    generateTTMLCommand = new RelayCommand(dogenerateTTML);
+                }
+                return generateTTMLCommand;
+            }
+        }
+
+        private void dogenerateTTML()
+        {
+            var answExportAll = MessageBox.Show($"Do you want to export all approved texts to subtitles? Click YES to export all the snippets.{Environment.NewLine}Click NO to export just the 'opened' snippets.{Environment.NewLine}Click CANCEL to exit.", "Choose which snippets to export", MessageBoxButton.YesNoCancel);
+            if (answExportAll == MessageBoxResult.Cancel)
+            {
+                return;
+            }
+
+            var answTtml = MessageBox.Show($"Do you want to export as TTML? Click YES For TTML format.{Environment.NewLine}Click NO for SRT format.{Environment.NewLine}Click CANCEL to exit.", "Choose which file format", MessageBoxButton.YesNoCancel);
+            if (answTtml == MessageBoxResult.Cancel)
+            {
+                return;
+            }
+
+            string subtitleFileText;
+            string fileName;
+
+            if (answTtml == MessageBoxResult.Yes)
+            {
+                subtitleFileText = MakeTtml(answExportAll);
+                fileName = $"{selectedProject.FolderName}.ttml";
+            }
+            else
+            {
+                subtitleFileText = MakeSrt(answExportAll);
+                fileName = $"{selectedProject.FolderName}.srt";
+            }
+
+            var dateFolder = $"{DateTime.Now.ToString("yyyMMdd_HHmmss")}";
+            var exportFolder = Path.Combine(Settings.Default.ProjectsFolder, selectedProject.FolderName, dateFolder);
+            Directory.CreateDirectory(exportFolder);
+            var file = Path.Combine(exportFolder, fileName);
+
+            File.WriteAllText(file, subtitleFileText);
+
+            var answShow = MessageBox.Show("File generated. Do you want to open the export folder?", "All done", MessageBoxButton.YesNo);
+            if (answShow == MessageBoxResult.Yes)
+            {
+                Process.Start(exportFolder);
+            }
+
+        }
+
+        private string MakeSrt(MessageBoxResult answExportAll)
+        {
+            var srt = "";
+            int ix = 1;
+            foreach (var snip in SelectedProject.Snippets)
+            {
+                if (answExportAll == MessageBoxResult.No && !snip.IsDrawn)
+                {
+                    continue; // Export only opened snippets
+                }
+                
+                foreach (var bit in snip.TextParts.Where(a => a.IsOK))
+                {
+                    var startTime = TimeSpan.FromTicks(snip.OffsetInTicks) + TimeSpan.FromMilliseconds(bit.StartMills); // + snip.AudioSnippet.OffsetInTicks);
+                    var endTime = startTime + TimeSpan.FromMilliseconds(bit.TextWidth);
+                    srt += $"{ix++}{Environment.NewLine}{startTime.ToString(@"hh\:mm\:ss\,fff")} --> {endTime.ToString(@"hh\:mm\:ss\,fff")}{Environment.NewLine}{bit.Text}{Environment.NewLine}{Environment.NewLine}";
+                }
+            }
+
+            return srt;
+        }
+
+        private string MakeTtml(MessageBoxResult answExportAll)
+        {
+            string ttml = GetTtmlTemplate() + Environment.NewLine;
+            var subtitles = "";
+
+            foreach (var snip in SelectedProject.Snippets)
+            {
+                if (answExportAll == MessageBoxResult.No && !snip.IsDrawn)
+                {
+                    continue; // Export only opened snippets
+                }
+
+                foreach (var txt in snip.TextParts.Where(a => a.IsOK))
+                {
+                    var startTime = TimeSpan.FromTicks(snip.OffsetInTicks) + TimeSpan.FromMilliseconds(txt.StartMills); // + snip.AudioSnippet.OffsetInTicks);
+                    var endTime = startTime + TimeSpan.FromMilliseconds(txt.TextWidth);
+                    subtitles += $"<p begin=\"{startTime}\" end=\"{endTime}\" style=\"s1\" region=\"rBottom\">{txt.Text}</p>{Environment.NewLine}";
+                }
+            }
+
+            ttml = ttml.Replace("$subtitles", subtitles);
+            return ttml;
+        }
+
+        private object GetTtmlTemplate()
+        {
+            return $"<tt xml:lang=\"en\" xmlns=\"http://www.w3.org/ns/ttml\" xmlns:tts=\"http://www.w3.org/ns/ttml#styling\"><head><styling><style xml:id=\"s1\" tts:fontFamily=\"SansSerif\" tts:fontWeight=\"bold\" tts:fontStyle=\"normal\" tts:textDecoration=\"none\" tts:color=\"white\" tts:backgroundColor=\"black\"/></styling><layout><region xml:id=\"rBottom\" tts:origin=\"20% 70%\" tts:extent=\"60% 30%\"/></layout></head><body><div xml:lang=\"en\">{Environment.NewLine}$subtitles</div></body></tt>";
+        }
+
+        private string CreateTextPartFilesFromSnippet(string ExportFolder, TrackSnippetViewModel snip, MessageBoxResult yesIfVoice, ref int index)
         {
             var transcriptionsFileText = "";
 
@@ -745,7 +865,14 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                 var fileNumberString = $"{index.ToString().PadLeft(4, '0')}";
                 var fileName = Path.Combine(ExportFolder, $"{fileNumberString}.wav"); //Path.GetFileName(snip.FilePath);
-                transcriptionsFileText += $"{fileNumberString}\t{tp.Text.Trim()}{Environment.NewLine}";
+                if (yesIfVoice == MessageBoxResult.Yes)
+                {
+                    transcriptionsFileText += $"{fileNumberString}\t{tp.Text.Trim()}{Environment.NewLine}"; // is for Custom Voice
+                }
+                else
+                {
+                    transcriptionsFileText += $"{fileNumberString}.wav\t{tp.Text.Trim()}{Environment.NewLine}"; // is for Acoutic Dataset
+                }
 
                 WavFileUtils.TakeClipAddSilence(snip.FilePath, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(tp.StartMills), TimeSpan.FromMilliseconds(tp.TextWidth), fileName);
 
@@ -855,9 +982,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 await Task.Delay(100);
 
                 newCollection[0].IsDrawn = true; // Show the first only
-
-                var newProjectFolder = Path.Combine(Settings.Default.ProjectsFolder, SelectedProject.Name);
-                Directory.CreateDirectory(newProjectFolder);
 
                 var ix = 1;
                 foreach (var snippet in newCollection)
@@ -1036,7 +1160,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                                     AudioSnippet = e.Result,
                                     Scale = scale,
                                     Gain = gain,
-                                    RawText = e.Result.Text
+                                    RawText = e.Result.Text,
+                                    OffsetInTicks = e.Result.OffsetInTicks
                                 };
                                 
                                 snippet.DurationMilliseconds = e.Result.Duration.TotalMilliseconds; //WavFileUtils.GetSoundLength(AudioFilePath);
@@ -1136,7 +1261,10 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
         private void MakeSnippetAudioFiles(TrackSnippetViewModel snippet, int ix, double totalDurationSeconds)
         {
-            snippet.FilePath = Path.Combine(Settings.Default.ProjectsFolder,SelectedProject.Name, $"{Path.GetFileNameWithoutExtension(AudioFilePath)}_{ix++}.wav");
+            var newProjectFolder = Path.Combine(Settings.Default.ProjectsFolder, SelectedProject.Name, $"{DateTime.Now.ToString("ddMMyyyyHHmmss")}");
+            Directory.CreateDirectory(newProjectFolder);
+
+            snippet.FilePath = Path.Combine(newProjectFolder, $"{Path.GetFileNameWithoutExtension(AudioFilePath)}_{ix++}.wav");
 
             var startTime = TimeSpan.FromTicks(snippet.AudioSnippet.OffsetInTicks);
 

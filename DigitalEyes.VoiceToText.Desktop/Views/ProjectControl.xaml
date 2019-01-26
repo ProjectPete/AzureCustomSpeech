@@ -92,8 +92,8 @@
                                         <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="100" Margin="2" ItemsSource="{Binding TranscribeEndpointsVM.TranscribeEndpoints}" DisplayMemberPath="Name" SelectedItem="{Binding TranscribeEndpointsVM.SelectedTranscribeEndpoint, Mode=TwoWay}" />
                                         <TextBlock Grid.Row="1" Text="Name" VerticalAlignment="Center" Margin="2" />
                                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TranscribeEndpointsVM.SelectedTranscribeEndpoint.Name}" Margin="2"/>
-                                        <TextBlock Grid.Row="2" Text="Key" VerticalAlignment="Center" Margin="2" />
-                                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TranscribeEndpointsVM.SelectedTranscribeEndpoint.Key}" Margin="2"/>
+                                        <ToggleButton Grid.Row="2" IsChecked="False" x:Name="ShowKey" Content="Show Key" HorizontalAlignment="Left" />
+                                        <TextBox Grid.Row="2" Grid.Column="1" Visibility="{Binding IsChecked, ElementName=ShowKey, Converter={StaticResource VisibilityConverter}}" Text="{Binding TranscribeEndpointsVM.SelectedTranscribeEndpoint.Key}" Margin="2"/>
                                         <TextBlock Grid.Row="3" Text="Region" VerticalAlignment="Center" Margin="2" />
                                         <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TranscribeEndpointsVM.SelectedTranscribeEndpoint.Region}" Margin="2"/>
                                         <TextBlock Grid.Row="4" Text="Endpoint" VerticalAlignment="Center" Margin="2" />
@@ -146,6 +146,12 @@
                                     </UniformGrid>
                                 </Grid>
                                 <Button Margin="10,0,10,10" Content="Text To Speech" Command="{Binding GenerateSpeechCommand}" HorizontalAlignment="Left" Padding="8,4" />
+                            </StackPanel>
+                        </TabItem>
+                        <TabItem Header="Generate Subtitle file">
+                            <StackPanel>
+                                <TextBlock Margin="4" Text="This feature will export the approved text parts as a TTML subtitle file, which you can add to a video. The built-in Windows 10 'Films &amp; TV' App has an option to do this." TextWrapping="Wrap"/>
+                                <Button Margin="10" Content="Export text to a TTML file" Command="{Binding GenerateTTMLCommand}" HorizontalAlignment="Left" Padding="8,4" />
                             </StackPanel>
                         </TabItem>
                     </TabControl>

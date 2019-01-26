@@ -54,7 +54,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 return selectionChangedTimer;
             }
         }
-        
+
         string rawText;
         [DataMember]
         public string RawText
@@ -71,6 +71,20 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             set
             {
                 rawText = value;
+            }
+        }
+
+        long offsetInTicks;
+        [DataMember]
+        public long OffsetInTicks
+        {
+            get
+            {
+                return offsetInTicks;
+            }
+            set
+            {
+                offsetInTicks = value;
             }
         }
 

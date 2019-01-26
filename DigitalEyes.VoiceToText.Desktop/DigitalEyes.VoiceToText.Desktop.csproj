@@ -160,7 +160,6 @@
     <Compile Include="ViewModels\AudoInfoViewModel.cs" />
     <Compile Include="ViewModels\DE_VTT_Project .cs" />
     <Compile Include="ViewModels\ProjectViewModel.cs" />
-    <Compile Include="ViewModels\MenuViewModel.cs" />
     <Compile Include="ViewModels\ProjectSettingsViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\TrackSnippetViewModel.cs" />
@@ -252,6 +251,27 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="SampleMedia\DevOps1_Full.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleMedia\DevOps1_Intro.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleMedia\GeneratedVoices\Martin Fake Voice V1.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleMedia\GeneratedVoices\Martin Fake Voice V2.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleMedia\OriginalVideo\London_Azure_Meetup_DevOps_With_Martin_Woodward - 42 sec intro.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleMedia\SubtitledVideo\MartinDevOps_42secIntro_Subtitled.wmv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.CognitiveServices.Speech.1.2.0\build\net461\Microsoft.CognitiveServices.Speech.targets" Condition="Exists('..\packages\Microsoft.CognitiveServices.Speech.1.2.0\build\net461\Microsoft.CognitiveServices.Speech.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
