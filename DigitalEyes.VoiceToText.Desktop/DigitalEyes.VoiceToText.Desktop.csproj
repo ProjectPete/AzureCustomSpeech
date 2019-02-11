@@ -137,7 +137,7 @@
     <Compile Include="ViewModels\TextToSpeechManager.cs" />
     <Compile Include="Models\DecibelPeakProvider.cs" />
     <Compile Include="Models\IPeakProvider.cs" />
-    <Compile Include="IWaveFormRenderer.cs" />
+    <Compile Include="Models\IWaveFormRenderer.cs" />
     <Compile Include="Models\MaxPeakProvider.cs" />
     <Compile Include="Models\PeakInfo.cs" />
     <Compile Include="Models\PeakProvider.cs" />
@@ -183,9 +183,9 @@
     <Compile Include="Views\WaveformStatsWindow.xaml.cs">
       <DependentUpon>WaveformStatsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WaveFormVisual.cs" />
-    <Compile Include="WavFileUtils.cs" />
-    <Compile Include="WavFormRenderer.cs" />
+    <Compile Include="Views\WaveFormVisual.cs" />
+    <Compile Include="Helpers\WavFileUtils.cs" />
+    <Compile Include="Helpers\WavFormRenderer.cs" />
     <Page Include="Views\AudioAndMarkerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

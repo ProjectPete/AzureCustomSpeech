@@ -20,6 +20,7 @@ using GalaSoft.MvvmLight.Messaging;
 using System.IO.Compression;
 using DigitalEyes.VoiceToText.Desktop.Properties;
 using DigitalEyes.VoiceToText.Desktop.Views;
+using DigitalEyes.VoiceToText.Desktop.Helpers;
 
 namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 {

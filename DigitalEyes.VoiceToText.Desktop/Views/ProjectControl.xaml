@@ -135,8 +135,6 @@
                                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Name}" Margin="2"/>
                                     <ToggleButton Grid.Row="2" IsChecked="False" x:Name="ShowKey2" Content="Show Key" HorizontalAlignment="Left" />
                                     <TextBox Grid.Row="2" Grid.Column="1" Visibility="{Binding IsChecked, ElementName=ShowKey2, Converter={StaticResource VisibilityConverter}}" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Key}" Margin="2"/>
-                                    <!--<TextBlock Grid.Row="2" Text="Key" VerticalAlignment="Center" Margin="2" />
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Key}" Margin="2"/>-->                                    
                                     <TextBlock Grid.Row="3" Text="Region" VerticalAlignment="Center" Margin="2" />
                                     <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Region}" Margin="2"/>
                                     <TextBlock Grid.Row="4" Text="Endpoint" VerticalAlignment="Center" Margin="2" />

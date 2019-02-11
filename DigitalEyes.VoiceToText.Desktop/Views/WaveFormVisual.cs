@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
-namespace DigitalEyes.VoiceToText.Desktop
+namespace DigitalEyes.VoiceToText.Desktop.Views
 {
     public class WaveFormVisual : FrameworkElement //, IWaveFormRenderer
     {

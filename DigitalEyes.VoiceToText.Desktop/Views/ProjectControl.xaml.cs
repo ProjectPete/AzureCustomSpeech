@@ -1,4 +1,5 @@
-﻿using DigitalEyes.VoiceToText.Desktop.Models;
+﻿using DigitalEyes.VoiceToText.Desktop.Helpers;
+using DigitalEyes.VoiceToText.Desktop.Models;
 using DigitalEyes.VoiceToText.Desktop.ViewModels;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;

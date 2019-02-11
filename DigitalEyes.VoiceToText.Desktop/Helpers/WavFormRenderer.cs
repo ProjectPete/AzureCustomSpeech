@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DigitalEyes.VoiceToText.Desktop
+namespace DigitalEyes.VoiceToText.Desktop.Helpers
 {
     public class WaveFormRenderer
     {
