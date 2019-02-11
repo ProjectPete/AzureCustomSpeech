@@ -38,7 +38,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Expander BorderBrush="DarkGray" BorderThickness="1" Padding="4" Margin="10" Grid.Row="1" Header="Import, Export &amp; Convert Tools  (click to open/close)" IsExpanded="{Binding ShowImportSection, Mode=TwoWay, Converter={StaticResource VisibilityConverter}}">
+                <Expander BorderBrush="DarkGray" BorderThickness="1" Padding="4" Margin="10" Grid.Row="1" Header="Import, Export &amp; Convert Tools  (click to open/close)" IsExpanded="{Binding ShowImportSection, Converter={StaticResource DebugConverter}}">
                     <TabControl>
                         <TabItem Header="Import new media file">
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" x:Name="ProjectControls" Grid.Row="1" Margin="10" VerticalScrollBarVisibility="Disabled">
@@ -133,8 +133,10 @@
                                     <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="100" Margin="2" ItemsSource="{Binding VoiceEndpointsVM.VoiceEndpoints}" DisplayMemberPath="Name" SelectedItem="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint, Mode=TwoWay}" />
                                     <TextBlock Grid.Row="1" Text="Name" VerticalAlignment="Center" Margin="2" />
                                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Name}" Margin="2"/>
-                                    <TextBlock Grid.Row="2" Text="Key" VerticalAlignment="Center" Margin="2" />
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Key}" Margin="2"/>
+                                    <ToggleButton Grid.Row="2" IsChecked="False" x:Name="ShowKey2" Content="Show Key" HorizontalAlignment="Left" />
+                                    <TextBox Grid.Row="2" Grid.Column="1" Visibility="{Binding IsChecked, ElementName=ShowKey2, Converter={StaticResource VisibilityConverter}}" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Key}" Margin="2"/>
+                                    <!--<TextBlock Grid.Row="2" Text="Key" VerticalAlignment="Center" Margin="2" />
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Key}" Margin="2"/>-->                                    
                                     <TextBlock Grid.Row="3" Text="Region" VerticalAlignment="Center" Margin="2" />
                                     <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding VoiceEndpointsVM.SelectedVoiceEndpoint.Region}" Margin="2"/>
                                     <TextBlock Grid.Row="4" Text="Endpoint" VerticalAlignment="Center" Margin="2" />

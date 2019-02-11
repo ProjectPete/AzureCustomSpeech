@@ -442,11 +442,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
             set
             {
-                if (showImportSection != value)
-                {
-                    showImportSection = value;
-                    RaisePropertyChanged("ShowImportSection");
-                }
+                showImportSection = value;
+                RaisePropertyChanged("ShowImportSection");
             }
         }
 
@@ -539,20 +536,25 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
         private string projectAsJsonForLaterChangeCheck = null;
 
-        private async void LoadProject(DE_VTT_Project value)
+        private async Task LoadProject(DE_VTT_Project value)
         {
             try
             {
                 LockUserInterface = true;
-                await Task.Delay(10);
+                await Task.Delay(10).ConfigureAwait(false);
                 SelectedProject = value;
 
                 AudioFilePath = value.OriginalFilePath;
 
                 if (SelectedProject.Snippets.Count == 0)
                 {
-                    ShowImportSection = true;
-                    SendNotificationUpdate("This project has no snippets saved yet. Please use the import section to import & transcribe some raw audio");
+
+                    parentControl.Dispatcher.Invoke(() =>
+                    {
+                        ShowImportSection = true;
+                        SendNotificationUpdate("This project has no snippets saved yet. Please use the import section to import & transcribe some raw audio");
+                        LockUserInterface = false;
+                    });
                 }
                 else
                 {
@@ -568,16 +570,23 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                         CurrentAudioVM.FileName = Path.GetFileName(SelectedProject.OriginalFilePath);
                     }
 
-                    await Task.Delay(50);
-
-                    parentControl.Dispatcher.Invoke(() => Messenger.Default.Send("Scale", "TrackSnippetViewModel"));
+                    ShowImportSection = false;
+                    LockUserInterface = false;
+                    //parentControl.Dispatcher.Invoke(() =>
+                    // {
+                    //    //snippet.GetSampleFrequencyAddPoints();
+                    //  //  await Task.Delay(200).ConfigureAwait(false);
+                    ////     Messenger.Default.Send("Scale", "TrackSnippetViewModel");
+                    // });
                 }
-
-                LockUserInterface = false;
             }
             catch (Exception exc)
             {
                 Debug.WriteLine($"{exc}");
+            }
+            finally
+            {
+                LockUserInterface = false;
             }
         }
 
@@ -636,37 +645,38 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         private void DoGenerateCustomArtefacts()
         {
             CheckForChanges();
+            LockUserInterface = true;
 
-            parentControl.Dispatcher.Invoke(async () =>
+            try
             {
-                try
+                MessageBoxResult answ = MessageBoxResult.Cancel;
+                var numberOfFiles = SelectedProject.SnippetsOkTextPartCount;
+
+                //   await Task.Delay(50).ConfigureAwait(false);
+
+                if (numberOfFiles > 0)
                 {
-                    MessageBoxResult answ = MessageBoxResult.Cancel;
-                    var numberOfFiles = SelectedProject.SnippetsOkTextPartCount;
-
-                    LockUserInterface = true;
-                    await Task.Delay(50);
-
-                    if (numberOfFiles > 0)
-                    {
-                        answ = MessageBox.Show($"Click YES to export just the {numberOfFiles} approved text parts with matching audio.{Environment.NewLine}Click NO to use the original full snippet audio and full text.{Environment.NewLine}Click CANCEL to take no action.", "Generate from just approved text?", MessageBoxButton.YesNoCancel);
-                        if (answ == MessageBoxResult.Cancel)
-                        {
-                            LockUserInterface = false;
-                            return;
-                        }
-                    }
-
-                    var formatAnsw = MessageBox.Show($"Click YES to export for Custom Voice.{Environment.NewLine}Click NO to export for Acoustic Dataset.{Environment.NewLine}Click CANCEL to take no action.", "Which index file format?", MessageBoxButton.YesNoCancel);
+                    answ = MessageBox.Show($"Click YES to export just the {numberOfFiles} approved text parts with matching audio.{Environment.NewLine}Click NO to use the original full snippet audio and full text.{Environment.NewLine}Click CANCEL to take no action.", "Generate from just approved text?", MessageBoxButton.YesNoCancel);
                     if (answ == MessageBoxResult.Cancel)
                     {
-                        LockUserInterface = false;
+                      //  LockUserInterface = false;
                         return;
                     }
+                }
 
-                    var dateFolder = $"{DateTime.Now.ToString("yyyMMdd_HHmmss")}";
-                    var exportFolder = Path.Combine(Settings.Default.ProjectsFolder, selectedProject.FolderName, dateFolder);
-                    var exportRawFolder = Path.Combine(Settings.Default.ProjectsFolder, selectedProject.FolderName, dateFolder, "RAW");
+                var formatAnsw = MessageBox.Show($"Click YES to export for Custom Voice.{Environment.NewLine}Click NO to export for Acoustic Dataset.{Environment.NewLine}Click CANCEL to take no action.", "Which index file format?", MessageBoxButton.YesNoCancel);
+                if (formatAnsw == MessageBoxResult.Cancel)
+                {
+                   // LockUserInterface = false;
+                    return;
+                }
+
+                var dateFolder = $"{DateTime.Now.ToString("yyyMMdd_HHmmss")}";
+                var exportFolder = Path.Combine(Settings.Default.ProjectsFolder, selectedProject.FolderName, dateFolder);
+                var exportRawFolder = Path.Combine(Settings.Default.ProjectsFolder, selectedProject.FolderName, dateFolder, "RAW");
+
+                parentControl.Dispatcher.Invoke(() =>
+                {
                     Directory.CreateDirectory(exportRawFolder);
 
                     var transcriptionsFileText = "";
@@ -674,7 +684,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     if (answ == MessageBoxResult.Yes)
                     {
                         // Version 2 - Reworking snippets. Taking only where edits were made and ticked as OK
-
                         ProgressingInfo = $"Generating {numberOfFiles} approved text parts from {SelectedProject.Snippets.Count} snippets...";
                         var index = 1;
                         foreach (var snip in SelectedProject.Snippets)
@@ -685,7 +694,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     else
                     {
                         // Version 1 - Take the raw text before curating
-
                         ProgressingInfo = $"Generating {SelectedProject.Snippets.Count} snippets with the raw text...";
                         var ix = 1;
                         foreach (var snip in SelectedProject.Snippets)
@@ -716,22 +724,22 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                     // delete raw temporary files, now they are zipped
                     Directory.Delete(exportRawFolder, true);
+                });
 
-                    answ = MessageBox.Show("Files generated. Do you want to open the export folder?", "All done", MessageBoxButton.YesNo);
-                    if (answ == MessageBoxResult.Yes)
-                    {
-                        Process.Start(exportFolder);
-                    }
-                }
-                catch (Exception exc)
+                answ = MessageBox.Show("Files generated. Do you want to open the export folder?", "All done", MessageBoxButton.YesNo);
+                if (answ == MessageBoxResult.Yes)
                 {
-                    MessageBox.Show($"Error: {exc}");
+                    Process.Start(exportFolder);
                 }
-                finally
-                {
-                    LockUserInterface = false;
-                }
-            });
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show($"Error: {exc}");
+            }
+            finally
+            {
+                LockUserInterface = false;
+            }
         }
 
         private RelayCommand generateTTMLCommand;
@@ -894,7 +902,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             await me.parentControl.Dispatcher.Invoke(async () =>
             {
                 me.LockUserInterface = true;
-                await Task.Delay(50);
+                await Task.Delay(50).ConfigureAwait(false);
 
                 bool redraw = false;
                 foreach (var snippet in me.SelectedProject.Snippets) // TrackSnippetViewModels)
@@ -908,7 +916,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
 
                 me.LockUserInterface = false;
-            });
+            }).ConfigureAwait(false);
         }
 
         public async void TranscribeNewFile()
@@ -928,18 +936,15 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
 
                 SelectedProject.OriginalFilePath = AudioFilePath;
-
-                //   SaveProjectsFile();
-
                 LockUserInterface = true;
                 IsTranscribing = true;
                 TranscribeInfo = "";
-                await Task.Delay(10);
+                await Task.Delay(10).ConfigureAwait(false);
 
                 stopRecognition = new TaskCompletionSource<int>();
                 var newCollection = new List<TrackSnippetViewModel>();
 
-                await GetTranscriptionFromAzure(stopRecognition, newCollection);
+                await GetTranscriptionFromAzure(stopRecognition, newCollection).ConfigureAwait(false);
 
                 try
                 {
@@ -957,11 +962,14 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
 
                 ///
+                ///
+                /// 
                 /// Finished recognition, now make files
+                /// 
+                /// 
                 ///
 
                 TranscribeInfo = "Finished transcribing. Please wait while the snippet files are created...";
-                await Task.Delay(100);
 
                 newCollection[0].IsDrawn = true; // Show the first only
 
@@ -969,22 +977,28 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 foreach (var snippet in newCollection)
                 {
                     MakeSnippetAudioFiles(snippet, ix++);
-                    //   TrackSnippetViewModels.Add(snippet);
                 }
 
                 await parentControl.Dispatcher.Invoke(async () =>
                 {
+                    var tasks = new List<Task>();
                     foreach (var snippet in newCollection)
                     {
                         SelectedProject.Snippets.Add(snippet);
-                        await Task.Delay(100); // allow draw, or point not plotted
                         snippet.GetSampleFrequencyAddPoints();
                     }
-                    GenerateCustomArtefactsCommand.RaiseCanExecuteChanged();
+                }).ContinueWith(async (_)=>
+                {
+                    await parentControl.Dispatcher.Invoke(async () =>
+                    {
+                        foreach (var snippet in newCollection)
+                        {
+                            snippet.GetSampleFrequencyAddPoints();
+                        }
+                        GenerateCustomArtefactsCommand.RaiseCanExecuteChanged();
+                    });
                 });
-
-                //  SelectedProject.Snippets = TrackSnippetViewModels.ToList();
-
+                
                 SaveProjectsFile();
             }
             catch (Exception excp)

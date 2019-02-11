@@ -5,6 +5,7 @@ using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -222,8 +223,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         public MainViewModel(Window parentWindow)
         {
             parentControl = parentWindow;
-            Messenger.Default.Register<ProjectViewModel>(this, DoSaveProject);
             LoadProjectsFile();
+            Messenger.Default.Register<ProjectViewModel>(this, DoSaveProject);
             Messenger.Default.Register<DE_VTT_Project>(this, "delete", DoDeleteProject);
             Messenger.Default.Register<ErrorMessage>(this, DoShowError);
         }

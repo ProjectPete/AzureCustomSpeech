@@ -191,7 +191,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             mainGrid.Children.Add(ruler);
         }
 
-        private async void DoMessage(string msg)
+        private void DoMessage(string msg)
         {
             if (msg == "Scale")
             {

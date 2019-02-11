@@ -100,10 +100,10 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     RaisePropertyChanged("IsDrawn");
                     RaisePropertyChanged("IsDrawnInverted");
 
-                    App.Current.Dispatcher.Invoke(async () =>
+                    App.Current.Dispatcher.Invoke(() =>
                     {
                         ShowWait = true;
-                        await Task.Delay(50);
+                        //await Task.Delay(50).ConfigureAwait(false);
                         Messenger.Default.Send("Scale", "TrackSnippetViewModel");
 
                         if (!value)
@@ -608,7 +608,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
         private async void DoTrackStart()
         {
-            await Task.Delay(100);
+            await Task.Delay(100).ConfigureAwait(false);
             if (partPlayStart != TimeSpan.Zero)
             {
                 //await Task.Delay(100);
@@ -1126,14 +1126,14 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                 SelectedTextParts.Clear();
                 RaisePropertyChanged("SelectedTextParts");
-                await Task.Delay(200);
+                await Task.Delay(200).ConfigureAwait(false);
 
                 for (var a = 0; a < TextParts.Count; a++)
                 {
                     TextParts[a].IsSelected = false;
                 }
 
-                await Task.Delay(100);
+                await Task.Delay(100).ConfigureAwait(false);
 
                 var selectedText = lastSelectionTextbox.SelectedText.Trim();
 
