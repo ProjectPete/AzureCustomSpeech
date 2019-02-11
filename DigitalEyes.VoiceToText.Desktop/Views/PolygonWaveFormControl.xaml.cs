@@ -39,7 +39,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             //ctrl.txtPoints.Text = e.NewValue.ToString();
         }
 
-        UniformGrid ruler;
+        private UniformGrid ruler;
 
         public int PointsCount
         {
@@ -49,7 +49,6 @@ namespace DigitalEyes.VoiceToText.Desktop
             }
             set { SetValue(PointsCountProperty, value); }
         }
-
 
         public static readonly DependencyProperty MarkerRectangleProperty = DependencyProperty.Register(
     "MarkerRectangle", typeof(Rectangle), typeof(PolygonWaveFormControl), new PropertyMetadata(null, MarkerRectangleChanged));
@@ -90,8 +89,9 @@ namespace DigitalEyes.VoiceToText.Desktop
             }
             set { SetValue(DurationProperty, value); }
         }
-        
-        Storyboard slidingStoryboard;
+
+        private Storyboard slidingStoryboard;
+
         public Storyboard SlidingStoryboard
         {
             get
@@ -104,7 +104,7 @@ namespace DigitalEyes.VoiceToText.Desktop
                 return slidingStoryboard;
             }
         }
-        
+
         private static void OnSampleAggregatorChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             var control = (PolygonWaveFormControl)sender;
@@ -116,7 +116,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             SampleAggregator.MaximumCalculated += OnMaximumCalculated;
         }
 
-        void OnMaximumCalculated(object sender, MaxSampleEventArgs e)
+        private void OnMaximumCalculated(object sender, MaxSampleEventArgs e)
         {
             if (IsEnabled)
             {
@@ -129,9 +129,9 @@ namespace DigitalEyes.VoiceToText.Desktop
         private double yTranslate = 40; //Changed later
         private double yScale = 40; // Changed later
         private double xScale = 1; // changed later
-        
-        readonly Polygon waveForm = new Polygon { HorizontalAlignment = HorizontalAlignment.Left };
-        TrackSnippetViewModel vm = null;
+
+        private readonly Polygon waveForm = new Polygon { HorizontalAlignment = HorizontalAlignment.Left };
+        private TrackSnippetViewModel vm = null;
 
         public PolygonWaveFormControl()
         {
@@ -141,8 +141,8 @@ namespace DigitalEyes.VoiceToText.Desktop
             waveForm.StrokeThickness = 1;
             waveForm.Fill = new SolidColorBrush(Colors.Green);
             mainCanvas.Children.Add(waveForm);
-            
-            Messenger.Default.Register<string>(this, "TrackSnippetViewModel", doMessage);
+
+            Messenger.Default.Register<string>(this, "TrackSnippetViewModel", DoMessage);
 
             DataContextChanged += PolygonWaveFormControl_DataContextChanged;
             Unloaded += PolygonWaveFormControl_Unloaded;
@@ -191,7 +191,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             mainGrid.Children.Add(ruler);
         }
 
-        private async void doMessage(string msg)
+        private async void DoMessage(string msg)
         {
             if (msg == "Scale")
             {
@@ -205,13 +205,13 @@ namespace DigitalEyes.VoiceToText.Desktop
             }
         }
 
-        void RedrawPoints()
+        private void RedrawPoints()
         {
             if (vm == null || vm.FilePath == null || !vm.IsDrawn)
             {
                 return;
             }
-            
+
             yTranslate = ActualHeight / 2; // + & - shows from the middle 
             yScale = (ActualHeight / 2) * vm.Gain;
             xScale = vm.Scale;
@@ -219,7 +219,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             vm.MarkerStoryboard.Stop();
             vm.GetSampleFrequencyAddPoints();
             var screenVisibleWidth = Parent as FrameworkElement;
-            
+
             vm.MarkerStoryboard.Children.Clear();
             var anim = new DoubleAnimation(0, Duration.TotalMilliseconds * xScale, Duration);
             Storyboard.SetTargetName(anim, "ttMarker");
@@ -250,7 +250,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             return yTranslate + value * yScale;
         }
 
-        int trimmedPointsFromStartCount = 0;
+        private int trimmedPointsFromStartCount = 0;
 
         private void CreatePoint(float topValue, float bottomValue)
         {
@@ -258,7 +258,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             {
                 var topYPos = SampleToYPosition(topValue);
                 var bottomYPos = SampleToYPosition(bottomValue);
-                
+
                 var xPos = (renderPosition);
 
                 if (renderPosition >= Points)
@@ -280,8 +280,6 @@ namespace DigitalEyes.VoiceToText.Desktop
                 Debug.WriteLine($"{exc}");
                 throw;
             }
-            
-
         }
 
         /// <summary>
@@ -292,10 +290,10 @@ namespace DigitalEyes.VoiceToText.Desktop
             renderPosition = 0;
             ClearAllPoints();
         }
-        
-        bool isMouseDragging = false;
-        double dragWidth = 1;
-        Point startPos;
+
+        private bool isMouseDragging = false;
+        private double dragWidth = 1;
+        private Point startPos;
 
         private void LeftButtDown(object sender, MouseButtonEventArgs e)
         {
@@ -304,7 +302,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             startPos = e.GetPosition(mainCanvas);
 
             MarkerRectangle.Width = 0;
-            
+
             var canv = sender as Canvas;
             vm.PlayPartLength = 0;
 
@@ -312,7 +310,7 @@ namespace DigitalEyes.VoiceToText.Desktop
 
             vm.SeekToMousePointInTime(seekTime);
         }
-        
+
         private void LeftButtLeave(object sender, MouseEventArgs e)
         {
             isMouseDragging = false;
@@ -333,7 +331,6 @@ namespace DigitalEyes.VoiceToText.Desktop
             }
             MarkerRectangle.Margin = new Thickness(startPos.X, 0, 0, 0);
             MarkerRectangle.Width = dragWidth;
-
         }
 
         private void LeftButtUp(object sender, MouseButtonEventArgs e)
@@ -348,5 +345,4 @@ namespace DigitalEyes.VoiceToText.Desktop
             vm.PlayPartLength = (MarkerRectangle.Width / vm.Scale);
         }
     }
-
 }

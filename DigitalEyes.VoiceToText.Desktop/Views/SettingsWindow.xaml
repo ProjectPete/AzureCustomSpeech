@@ -29,6 +29,6 @@
         </TextBlock>
         <TextBlock Margin="4" Grid.Row="6" Text="Verbose transcription logging"/>
         <CheckBox Margin="4" Grid.Row="6" Grid.Column="1" IsChecked="{Binding TranscriptionLogging, Mode=TwoWay}"/>
-        <Button Click="btnClose_Click" Content="Close" Grid.Row="7" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Left" Width="80" Margin="4"/>
+        <Button Click="BtnClose_Click" Content="Close" Grid.Row="7" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Left" Width="80" Margin="4"/>
     </Grid>
 </Window>

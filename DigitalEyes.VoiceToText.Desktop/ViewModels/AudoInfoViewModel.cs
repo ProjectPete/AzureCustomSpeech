@@ -12,7 +12,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
     {
         public string FileName { get; set; }
 
-        WaveFormat waveFormat;
+        private WaveFormat waveFormat;
+
         public WaveFormat WaveFormat
         {
             get
@@ -29,7 +30,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        Duration duration;
+        private Duration duration;
+
         public Duration Duration
         {
             get
@@ -45,8 +47,9 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
-        double actualPointsCollected;
+
+        private double actualPointsCollected;
+
         public double ActualPointsCollected
         {
             get
@@ -62,6 +65,5 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-
     }
 }

@@ -16,6 +16,7 @@ namespace DigitalEyes.VoiceToText.Desktop.Models
             }
             catch (Exception ex)
             {
+                ErrorMessage.Raise(ex);
                 return null;
             }
         }

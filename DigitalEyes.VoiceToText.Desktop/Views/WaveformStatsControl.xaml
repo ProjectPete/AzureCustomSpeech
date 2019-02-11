@@ -25,7 +25,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <TextBlock Text="File" Margin="2" />
-        <TextBlock Grid.Column="1" x:Name="txtName" Margin="2" FontWeight="Bold" Text="{Binding FileName}" />
+        <TextBlock Grid.Column="1" x:Name="txtName" Margin="2" MaxWidth="200" TextWrapping="Wrap" FontWeight="Bold" Text="{Binding FileName}" />
         <TextBlock Grid.Row="1" Text="Sample rate (kbps)" Margin="2"  />
         <TextBlock Grid.Row="1" Grid.Column="1" x:Name="txtSampleRate" Margin="2" FontWeight="Bold" Text="{Binding WaveFormat.SampleRate}" />
         <TextBlock Grid.Row="2" Text="Bits per sample" Margin="2" />

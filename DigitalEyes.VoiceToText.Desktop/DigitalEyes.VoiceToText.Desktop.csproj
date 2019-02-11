@@ -130,6 +130,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helpers\MultiselectionChangedHandler.cs" />
+    <Compile Include="Models\ErrorMessage.cs" />
     <Compile Include="Views\AudioAndMarkerControl.xaml.cs">
       <DependentUpon>AudioAndMarkerControl.xaml</DependentUpon>
     </Compile>

@@ -57,8 +57,8 @@
                                     <TextBlock HorizontalAlignment="Left" Width="750" Grid.ColumnSpan="3" Text="Browse and select a media file. This feature uses NAudio media converter, so it will take most common sound files like wav &amp; mp3, or media with a sound track like mp4 &amp; m4a. If the green button is enabled, click to convert it. You must also enter/select a Speech Service endpoint. You can get these details from the Azure Portal. Click the settings button for a link explaining more." TextWrapping="Wrap"/>
 
                                     <StackPanel Grid.Row="1" Background="#FFEEEEEE" Margin="1" Grid.ColumnSpan="3" Orientation="Horizontal">
-                                        <Button Padding="4,2" Click="btnChooseFolder" Content="Browse" Width="50" Margin="5"/>
-                                        <TextBox Padding="4,2" VerticalAlignment="Center" Margin="5,0,0,0" x:Name="txtFilePath" MinWidth="200" Text="{Binding FilesFolder}"/>
+                                        <Button Padding="4,2" Click="BtnChooseFolder" Content="Browse" Width="50" Margin="5"/>
+                                        <TextBox Padding="4,2" VerticalAlignment="Center" Margin="5,0,0,0" x:Name="txtFilePath" MinWidth="200" MaxWidth="600" Text="{Binding FilesFolder}"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="2" Background="#FFEEEEEE" Margin="1" HorizontalAlignment="Left" Visibility="{Binding FoundFiles, Converter={StaticResource VisibilityConverter}}">
@@ -215,10 +215,10 @@
                                         </StackPanel>-->
                                             </StackPanel>
                                             <Button Content="Play" Command="{Binding TrackStartCommand}" FontSize="9"/>
-                                            <Button Content="Pause/Resume" Click="btnPauseClick" FontSize="9" />
+                                            <Button Content="Pause/Resume" Click="BtnPauseClick" FontSize="9" />
                                             <!--<Button Content="Stop" Click="btnStopClick" FontSize="9"/>-->
-                                            <Button Content="Group selected" Click="btnMergeClick" FontSize="9" />
-                                            <Button Content="Add space before" Click="btnRightSpacerClick" FontSize="9" />
+                                            <Button Content="Group selected" Click="BtnMergeClick" FontSize="9" />
+                                            <Button Content="Add space before" Click="BtnRightSpacerClick" FontSize="9" />
                                             <Button Content="Delete selected..." Command="{Binding SelectedDeleteCommand}" FontSize="9"/>
 
                                             <UniformGrid Columns="4">
@@ -276,7 +276,7 @@
                                                 </Rectangle.RenderTransform>
                                             </Rectangle>
 
-                                            <ListBox x:Name="lstWords" RequestBringIntoView="evtBringIntoView" Visibility="{Binding IsDrawn, Converter={StaticResource VisibilityConverter}}" Grid.Row="1" SelectionMode="Extended" ScrollViewer.PanningMode="None" ItemsSource="{Binding TextParts}" HorizontalAlignment="Stretch" helpers:Ex.SelectedItems="{Binding SelectedTextParts, Mode=TwoWay}" RenderTransformOrigin="0,0.1">
+                                            <ListBox x:Name="lstWords" RequestBringIntoView="EvtBringIntoView" Visibility="{Binding IsDrawn, Converter={StaticResource VisibilityConverter}}" Grid.Row="1" SelectionMode="Extended" ScrollViewer.PanningMode="None" ItemsSource="{Binding TextParts}" HorizontalAlignment="Stretch" helpers:Ex.SelectedItems="{Binding SelectedTextParts, Mode=TwoWay}" RenderTransformOrigin="0,0.1">
                                                 <ListBox.ItemsPanel>
                                                     <ItemsPanelTemplate>
                                                         <Grid Margin="-1,0,0,-1" IsItemsHost="True" HorizontalAlignment="Stretch" />

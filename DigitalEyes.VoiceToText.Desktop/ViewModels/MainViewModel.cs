@@ -1,4 +1,5 @@
-﻿using DigitalEyes.VoiceToText.Desktop.Views;
+﻿using DigitalEyes.VoiceToText.Desktop.Models;
+using DigitalEyes.VoiceToText.Desktop.Views;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using System;
@@ -14,12 +15,12 @@ using System.Xml;
 
 namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 {
-    class MainViewModel : BaseViewModel
+    internal class MainViewModel : BaseViewModel
     {
+        private readonly Window parentControl;
 
-        Window parentControl;
+        private ProjectControl projectControl;
 
-        ProjectControl projectControl;
         public ProjectControl ProjectControl
         {
             get
@@ -36,7 +37,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        string selectedProjectName;
+        private string selectedProjectName;
+
         public string SelectedProjectName
         {
             get
@@ -53,54 +55,43 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-
         public SettingsViewModel SettingsVM { get; } = new SettingsViewModel();
 
-        RelayCommand<DE_VTT_Project> loadProjectCommand;
+        private RelayCommand<DE_VTT_Project> loadProjectCommand;
+
         public RelayCommand<DE_VTT_Project> LoadProjectCommand
         {
             get
             {
-                if (loadProjectCommand == null)
-                {
-                    loadProjectCommand = new RelayCommand<DE_VTT_Project>(doLoadProject);
-                }
-                return loadProjectCommand;
+                return loadProjectCommand ?? (loadProjectCommand = new RelayCommand<DE_VTT_Project>(DoLoadProject));
             }
         }
 
-        RelayCommand addConfigCommand;
+        private RelayCommand addConfigCommand;
+
         public RelayCommand AddConfigCommand
         {
             get
             {
-                if (addConfigCommand == null)
-                {
-                    addConfigCommand = new RelayCommand(doAddConfig);
-                }
-                return addConfigCommand;
+                return addConfigCommand ?? (addConfigCommand = new RelayCommand(DoAddConfig));
             }
         }
 
-        private void doAddConfig()
+        private void DoAddConfig()
         {
-            
         }
 
-        RelayCommand<DE_VTT_Project> newProjectCommand;
+        private RelayCommand<DE_VTT_Project> newProjectCommand;
+
         public RelayCommand<DE_VTT_Project> NewProjectCommand
         {
             get
             {
-                if (newProjectCommand == null)
-                {
-                    newProjectCommand = new RelayCommand<DE_VTT_Project>(doNewProject);
-                }
-                return newProjectCommand;
+                return newProjectCommand ?? (newProjectCommand = new RelayCommand<DE_VTT_Project>(DoNewProject));
             }
         }
 
-        private void doNewProject(DE_VTT_Project obj)
+        private void DoNewProject(DE_VTT_Project obj)
         {
             var proj = new DE_VTT_Project();
 
@@ -113,23 +104,20 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             // Open the dialog box modally 
             var rslt = dlg.ShowDialog();
 
-            if (rslt.HasValue && rslt.Value)
+            if (rslt == true)
             {
                 Projects.Add(proj);
                 RaisePropertyChanged("Projects");
-                doLoadProject(proj);
+                DoLoadProject(proj);
                 SaveProjectsFile();
             }
         }
-        
-        private void doLoadProject(DE_VTT_Project project)
+
+        private void DoLoadProject(DE_VTT_Project project)
         {
             parentControl.Dispatcher.Invoke(() =>
             {
-                if (ProjectControl != null)
-                {
-                    ProjectControl.Dispose();
-                }
+                ProjectControl?.Dispose();
 
                 if (project == null)
                 {
@@ -145,16 +133,13 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             });
         }
 
-        ObservableCollection<DE_VTT_Project> projects;
+        private ObservableCollection<DE_VTT_Project> projects;
+
         public ObservableCollection<DE_VTT_Project> Projects
         {
             get
             {
-                if (projects == null)
-                {
-                    projects = new ObservableCollection<DE_VTT_Project>();
-                }
-                return projects;
+                return projects ?? (projects = new ObservableCollection<DE_VTT_Project>());
             }
             set
             {
@@ -203,7 +188,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 MessageBox.Show("Error deserialising the projects file. Has anything on the class models changed, no longer matching the json schema?");
                 return;
             }
-
         }
 
         public void SaveProjectsFile()
@@ -238,23 +222,29 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         public MainViewModel(Window parentWindow)
         {
             parentControl = parentWindow;
-            Messenger.Default.Register<ProjectViewModel>(this, doSaveProject);
+            Messenger.Default.Register<ProjectViewModel>(this, DoSaveProject);
             LoadProjectsFile();
-            Messenger.Default.Register<DE_VTT_Project>(this, "delete", doDeleteProject);
+            Messenger.Default.Register<DE_VTT_Project>(this, "delete", DoDeleteProject);
+            Messenger.Default.Register<ErrorMessage>(this, DoShowError);
         }
 
-        private void doDeleteProject(DE_VTT_Project obj)
+        private void DoShowError(ErrorMessage erMsg)
+        {
+            MessageBox.Show(erMsg.Exception.ToString());
+        }
+
+        private void DoDeleteProject(DE_VTT_Project obj)
         {
             parentControl.Dispatcher.Invoke(() =>
             {
                 Projects.Remove(obj);
                 SaveProjectsFile();
-                doLoadProject(null);
+                DoLoadProject(null);
                 RaisePropertyChanged("Projects");
             });
         }
-        
-        private void doSaveProject(ProjectViewModel obj)
+
+        private void DoSaveProject(ProjectViewModel obj)
         {
             SaveProjectsFile();
         }

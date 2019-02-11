@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using DigitalEyes.VoiceToText.Desktop.Models;
+using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;
@@ -12,14 +13,12 @@ namespace DigitalEyes.VoiceToText.Desktop
 {
     public static class WavFileUtils
     {
-
         [DllImport("winmm.dll")]
-        private static extern uint mciSendString(
+        private static extern uint MciSendString(
             string command,
             StringBuilder returnValue,
             int returnLength,
             IntPtr winHandle);
-
 
         public static void TrimWavFile(string inPath, string outPath, TimeSpan cutFromStart, TimeSpan cutFromEnd)
         {
@@ -30,10 +29,10 @@ namespace DigitalEyes.VoiceToText.Desktop
                     int bytesPerMillisecond = reader.WaveFormat.AverageBytesPerSecond / 1000;
 
                     int startPos = (int)cutFromStart.TotalMilliseconds * bytesPerMillisecond;
-                    startPos = startPos - startPos % reader.WaveFormat.BlockAlign;
+                    startPos -= startPos % reader.WaveFormat.BlockAlign;
 
                     int endBytes = (int)cutFromEnd.TotalMilliseconds * bytesPerMillisecond;
-                    endBytes = endBytes - endBytes % reader.WaveFormat.BlockAlign;
+                    endBytes -= endBytes % reader.WaveFormat.BlockAlign;
                     int endPos = (int)reader.Length - endBytes;
 
                     TrimWavFile(reader, writer, startPos, endPos);
@@ -68,10 +67,10 @@ namespace DigitalEyes.VoiceToText.Desktop
         {
             StringBuilder lengthBuf = new StringBuilder(32);
 
-            mciSendString(string.Format("open \"{0}\" type waveaudio alias wave", fileName), null, 0, IntPtr.Zero);
-            mciSendString("status wave length", lengthBuf, lengthBuf.Capacity, IntPtr.Zero);
-            mciSendString("close wave", null, 0, IntPtr.Zero);
-            
+            MciSendString(string.Format("open \"{0}\" type waveaudio alias wave", fileName), null, 0, IntPtr.Zero);
+            MciSendString("status wave length", lengthBuf, lengthBuf.Capacity, IntPtr.Zero);
+            MciSendString("close wave", null, 0, IntPtr.Zero);
+
             return lengthBuf.Length;
         }
 
@@ -110,12 +109,13 @@ namespace DigitalEyes.VoiceToText.Desktop
             {
                 //byte[] buffer = new byte[1024];
                 AudioFileReader afr = new AudioFileReader(file);
-                OffsetSampleProvider offsetter = new OffsetSampleProvider(afr);
-
-                offsetter.DelayBy = lengthSilence;
-                offsetter.LeadOut = lengthSilence;
-                offsetter.SkipOver = startTime;
-                offsetter.Take = length;
+                OffsetSampleProvider offsetter = new OffsetSampleProvider(afr)
+                {
+                    DelayBy = lengthSilence,
+                    LeadOut = lengthSilence,
+                    SkipOver = startTime,
+                    Take = length
+                };
                 offsetter.ToMono();
 
                 var provider = new SampleToWaveProvider(offsetter);
@@ -128,6 +128,7 @@ namespace DigitalEyes.VoiceToText.Desktop
             }
             catch (Exception exc)
             {
+                ErrorMessage.Raise(exc);
                 return false;
             }
         }

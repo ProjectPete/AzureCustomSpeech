@@ -14,11 +14,13 @@ namespace DigitalEyes.VoiceToText.Desktop.Helpers
     {
         public static readonly DependencyProperty IsSubscribedToSelectionChangedProperty = DependencyProperty.RegisterAttached(
             "IsSubscribedToSelectionChanged", typeof(bool), typeof(Ex), new PropertyMetadata(default(bool)));
+
         public static void SetIsSubscribedToSelectionChanged(DependencyObject element, bool value) { element.SetValue(IsSubscribedToSelectionChangedProperty, value); }
         public static bool GetIsSubscribedToSelectionChanged(DependencyObject element) { return (bool)element.GetValue(IsSubscribedToSelectionChangedProperty); }
 
         public static readonly DependencyProperty SelectedItemsProperty = DependencyProperty.RegisterAttached(
             "SelectedItems", typeof(IList), typeof(Ex), new PropertyMetadata(default(IList), OnSelectedItemsChanged));
+
         public static void SetSelectedItems(DependencyObject element, IList value) { element.SetValue(SelectedItemsProperty, value); }
         public static IList GetSelectedItems(DependencyObject element) { return (IList)element.GetValue(SelectedItemsProperty); }
 
@@ -36,7 +38,7 @@ namespace DigitalEyes.VoiceToText.Desktop.Helpers
             var oldList = e.OldValue as IList;
             if (oldList != null)
             {
-                var obs = oldList as INotifyCollectionChanged;
+                INotifyCollectionChanged obs = oldList as INotifyCollectionChanged;
                 if (obs != null)
                 {
                     obs.CollectionChanged -= OnCollectionChanged;
@@ -107,6 +109,7 @@ namespace DigitalEyes.VoiceToText.Desktop.Helpers
             }
             throw new ArgumentException("Somehow this got attached to an object I don't support. ListBoxes and Multiselectors (DataGrid), people. Geesh =P!");
         }
+
         /// <summary>
         /// When the listbox or grid fires a selectionChanged even, we update the attached list to
         /// match it.
@@ -141,7 +144,10 @@ namespace DigitalEyes.VoiceToText.Desktop.Helpers
             if (listbox != null)
             {
                 listbox.SelectionChanged -= OnSelectorSelectionChanged;
-                if (e.Action == NotifyCollectionChangedAction.Reset) listbox.SelectedItems.Clear();
+                if (e.Action == NotifyCollectionChangedAction.Reset)
+                {
+                    listbox.SelectedItems.Clear();
+                }
                 else
                 {
                     foreach (var oldItem in e.OldItems) listbox.SelectedItems.Remove(oldItem);
@@ -153,7 +159,10 @@ namespace DigitalEyes.VoiceToText.Desktop.Helpers
             if (grid != null)
             {
                 grid.SelectionChanged -= OnSelectorSelectionChanged;
-                if (e.Action == NotifyCollectionChangedAction.Reset) grid.SelectedItems.Clear();
+                if (e.Action == NotifyCollectionChangedAction.Reset)
+                {
+                    grid.SelectedItems.Clear();
+                }
                 else
                 {
                     foreach (var oldItem in e.OldItems) grid.SelectedItems.Remove(oldItem);

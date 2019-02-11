@@ -25,11 +25,12 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 {
     public class ProjectViewModel : BaseViewModel
     {
-        const int ADJUSTED_SIZE_MAX_WORD_LENGTH = 400;
+        private const int ADJUSTED_SIZE_MAX_WORD_LENGTH = 400;
 
-        Timer scaleChangedTimer;
+        private readonly Timer scaleChangedTimer;
 
-        TranscribeEndpointsViewModel transcribeEndpointsViewModel;
+        private TranscribeEndpointsViewModel transcribeEndpointsViewModel;
+
         public TranscribeEndpointsViewModel TranscribeEndpointsVM
         {
             get
@@ -46,7 +47,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        VoiceEndpointsViewModel voiceEndpointsViewModel;
+        private VoiceEndpointsViewModel voiceEndpointsViewModel;
+
         public VoiceEndpointsViewModel VoiceEndpointsVM
         {
             get
@@ -73,7 +75,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        string transcribeInfo;
+        private string transcribeInfo;
+
         public string TranscribeInfo
         {
             get
@@ -90,7 +93,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        bool isTranscribing;
+        private bool isTranscribing;
+
         public bool IsTranscribing
         {
             get
@@ -106,8 +110,9 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
-        string selectedFileName;
+
+        private string selectedFileName;
+
         public string SelectedFileName
         {
             get
@@ -168,8 +173,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
+        private List<string> filesFound = new List<string>();
 
-        List<string> filesFound = new List<string>();
         public List<string> FilesFound
         {
             get
@@ -220,15 +225,15 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         {
             var files = new List<string>();
             var filePaths = Directory.GetFiles(FilesFolder);
-            foreach(var f in filePaths)
+            foreach (var f in filePaths)
             {
                 files.Add(Path.GetFileName(f));
             }
             FilesFound = files;
         }
 
-        AudoInfoViewModel currentAudioVM;
-    
+        private AudoInfoViewModel currentAudioVM;
+
         public AudoInfoViewModel CurrentAudioVM
         {
             get
@@ -244,8 +249,9 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
-        double gain;
+
+        private double gain;
+
         public double Gain
         {
             get
@@ -264,33 +270,27 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        RelayCommand showSettingsCommand;
+        private RelayCommand showSettingsCommand;
+
         public RelayCommand ShowSettingsCommand
         {
             get
             {
-                if (showSettingsCommand == null)
-                {
-                    showSettingsCommand = new RelayCommand(doShowSettings);
-                }
-                return showSettingsCommand;
+                return showSettingsCommand ?? (showSettingsCommand = new RelayCommand(DoShowSettings));
             }
         }
-        
-        RelayCommand generateSpeechCommand;
+
+        private RelayCommand generateSpeechCommand;
+
         public RelayCommand GenerateSpeechCommand
         {
             get
             {
-                if (generateSpeechCommand == null)
-                {
-                    generateSpeechCommand = new RelayCommand(doGenerateSpeech);
-                }
-                return generateSpeechCommand;
+                return generateSpeechCommand ?? (generateSpeechCommand = new RelayCommand(DoGenerateSpeech));
             }
         }
 
-        private async void doGenerateSpeech()
+        private async void DoGenerateSpeech()
         {
             try
             {
@@ -311,7 +311,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                 LockUserInterface = true;
 
-                Messenger.Default.Register<string>(this, doTtsMessage);
+                Messenger.Default.Register<string>(this, DoTtsMessage);
                 var textToSpeech = new TextToSpeechManager();
 
                 var converted = false;
@@ -338,7 +338,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     var answ = MessageBox.Show("Files generated. Do you want to open the export folder?", "All done", MessageBoxButton.YesNo);
                     if (answ == MessageBoxResult.Yes)
                     {
-                        foreach(var dir in exportFolers)
+                        foreach (var dir in exportFolers)
                         {
                             Process.Start(dir);
                         }
@@ -355,50 +355,44 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
             finally
             {
-                Messenger.Default.Unregister<string>(this, doTtsMessage);
+                Messenger.Default.Unregister<string>(this, DoTtsMessage);
                 LockUserInterface = false;
             }
         }
 
-        private void doTtsMessage(string msg)
+        private void DoTtsMessage(string msg)
         {
             ProgressingInfo = msg;
         }
 
-        RelayCommand stopTranscribeCommand;
+        private RelayCommand stopTranscribeCommand;
+
         public RelayCommand StopTranscribeCommand
         {
             get
             {
-                if (stopTranscribeCommand == null)
-                {
-                    stopTranscribeCommand = new RelayCommand(doStopTranscribe);
-                }
-                return stopTranscribeCommand;
+                return stopTranscribeCommand ?? (stopTranscribeCommand = new RelayCommand(DoStopTranscribe));
             }
         }
 
-        private void doStopTranscribe()
+        private void DoStopTranscribe()
         {
             stopRecognition.TrySetCanceled();
         }
 
-        TaskCompletionSource<int> stopRecognition;
+        private TaskCompletionSource<int> stopRecognition;
 
-        RelayCommand deleteProjectCommand;
+        private RelayCommand deleteProjectCommand;
+
         public RelayCommand DeleteProjectCommand
         {
             get
             {
-                if (deleteProjectCommand == null)
-                {
-                    deleteProjectCommand = new RelayCommand(doDeleteProject);
-                }
-                return deleteProjectCommand;
+                return deleteProjectCommand ?? (deleteProjectCommand = new RelayCommand(DoDeleteProject));
             }
         }
 
-        private void doDeleteProject()
+        private void DoDeleteProject()
         {
             var answ = MessageBox.Show("Are you sure you want to delete this project? (Media will not be deleted)", "Remove Project", MessageBoxButton.YesNo);
             if (answ == MessageBoxResult.Yes)
@@ -407,21 +401,18 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        private void doShowSettings()
+        private void DoShowSettings()
         {
             ShowSettings();
         }
 
-        RelayCommand saveChangesCommand;
+        private RelayCommand saveChangesCommand;
+
         public RelayCommand SaveChangesCommand
         {
             get
             {
-                if (saveChangesCommand == null)
-                {
-                    saveChangesCommand = new RelayCommand(doSaveChanges, CanSaveChanges);
-                }
-                return saveChangesCommand;
+                return saveChangesCommand ?? (saveChangesCommand = new RelayCommand(DoSaveChanges, CanSaveChanges));
             }
         }
 
@@ -430,7 +421,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             return true;
         }
 
-        private void doSaveChanges()
+        private void DoSaveChanges()
         {
             SaveProjectsFile();
             SendNotificationUpdate("Save complete");
@@ -441,7 +432,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             ProgressingInfo = message;
         }
 
-        bool showImportSection;
+        private bool showImportSection;
+
         public bool ShowImportSection
         {
             get
@@ -457,8 +449,9 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
-        bool lockUserInterface;
+
+        private bool lockUserInterface;
+
         public bool LockUserInterface
         {
             get
@@ -478,7 +471,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        string progressingInfo;
+        private string progressingInfo;
+
         public string ProgressingInfo
         {
             get
@@ -494,8 +488,9 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
-        DE_VTT_Project selectedProject;
+
+        private DE_VTT_Project selectedProject;
+
         public DE_VTT_Project SelectedProject
         {
             get
@@ -514,7 +509,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     selectedProject = value;
                     RaisePropertyChanged("SelectedProject");
 
-                    parentControl.Dispatcher.Invoke(() => 
+                    parentControl.Dispatcher.Invoke(() =>
                     {
                         LoadProject(value);
                         GenerateCustomArtefactsCommand.RaiseCanExecuteChanged();
@@ -542,7 +537,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        string projectAsJsonForLaterChangeCheck = null;
+        private string projectAsJsonForLaterChangeCheck = null;
 
         private async void LoadProject(DE_VTT_Project value)
         {
@@ -575,10 +570,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                     await Task.Delay(50);
 
-                    parentControl.Dispatcher.Invoke(() =>
-                    {
-                        Messenger.Default.Send("Scale", "TrackSnippetViewModel");
-                    });
+                    parentControl.Dispatcher.Invoke(() => Messenger.Default.Send("Scale", "TrackSnippetViewModel"));
                 }
 
                 LockUserInterface = false;
@@ -589,7 +581,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        double scale = 0.1;
+        private double scale = 0.1;
+
         public double Scale
         {
             get
@@ -607,7 +600,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        int sampleRate;
+        private int sampleRate;
 
         public int SampleRate
         {
@@ -625,29 +618,26 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        RelayCommand generateCustomArtefactsCommand;
+        private RelayCommand generateCustomArtefactsCommand;
+
         public RelayCommand GenerateCustomArtefactsCommand
         {
             get
             {
-                if (generateCustomArtefactsCommand == null)
-                {
-                    generateCustomArtefactsCommand = new RelayCommand(doGenerateCustomArtefacts, canExecuteGenCustomArte);
-                }
-                return generateCustomArtefactsCommand;
+                return generateCustomArtefactsCommand ?? (generateCustomArtefactsCommand = new RelayCommand(DoGenerateCustomArtefacts, CanExecuteGenCustomArte));
             }
         }
 
-        private bool canExecuteGenCustomArte()
+        private bool CanExecuteGenCustomArte()
         {
-            return SelectedProject != null && SelectedProject.Snippets.Count > 0;
+            return SelectedProject?.Snippets.Count > 0;
         }
 
-        private void doGenerateCustomArtefacts()
+        private void DoGenerateCustomArtefacts()
         {
             CheckForChanges();
 
-            parentControl.Dispatcher.Invoke(async () => 
+            parentControl.Dispatcher.Invoke(async () =>
             {
                 try
                 {
@@ -742,23 +732,19 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     LockUserInterface = false;
                 }
             });
+        }
 
-         }
+        private RelayCommand generateTTMLCommand;
 
-        RelayCommand generateTTMLCommand;
         public RelayCommand GenerateTTMLCommand
         {
             get
             {
-                if (generateTTMLCommand == null)
-                {
-                    generateTTMLCommand = new RelayCommand(dogenerateTTML);
-                }
-                return generateTTMLCommand;
+                return generateTTMLCommand ?? (generateTTMLCommand = new RelayCommand(DogenerateTTML));
             }
         }
 
-        private void dogenerateTTML()
+        private void DogenerateTTML()
         {
             var answExportAll = MessageBox.Show($"Do you want to export all approved texts to subtitles? Click YES to export all the snippets.{Environment.NewLine}Click NO to export just the 'opened' snippets.{Environment.NewLine}Click CANCEL to exit.", "Choose which snippets to export", MessageBoxButton.YesNoCancel);
             if (answExportAll == MessageBoxResult.Cancel)
@@ -798,7 +784,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             {
                 Process.Start(exportFolder);
             }
-
         }
 
         private string MakeSrt(MessageBoxResult answExportAll)
@@ -811,7 +796,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 {
                     continue; // Export only opened snippets
                 }
-                
+
                 foreach (var bit in snip.TextParts.Where(a => a.IsOK))
                 {
                     var startTime = TimeSpan.FromTicks(snip.OffsetInTicks) + TimeSpan.FromMilliseconds(bit.StartMills); // + snip.AudioSnippet.OffsetInTicks);
@@ -843,8 +828,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
 
-            ttml = ttml.Replace("$subtitles", subtitles);
-            return ttml;
+            return ttml.Replace("$subtitles", subtitles);
         }
 
         private object GetTtmlTemplate()
@@ -889,24 +873,23 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         public int SampleBits { get; set; }
         public double SampleLengthSeconds { get; set; }
 
-   //     int lastCharLength = 0;
-        double lastMillisecondsTotal = 1;
+        //     int lastCharLength = 0;
+        private double lastMillisecondsTotal = 1;
 
-        List<TextPart> textPartsAll = new List<TextPart>();
+        private List<TextPart> textPartsAll = new List<TextPart>();
 
-        FrameworkElement parentControl;
-        
-        private void doProcessMessage(string msg)
+        private readonly FrameworkElement parentControl;
+
+        private void DoProcessMessage(string msg)
         {
             ProgressingInfo = msg;
         }
 
-        private async static void scaleTick(object state)
+        private async static void ScaleTick(object state)
         {
             Debug.WriteLine("scale/gain changed tick");
             var me = state as ProjectViewModel;
             me.scaleChangedTimer.Change(Timeout.Infinite, Timeout.Infinite);
-
 
             await me.parentControl.Dispatcher.Invoke(async () =>
             {
@@ -914,7 +897,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 await Task.Delay(50);
 
                 bool redraw = false;
-                foreach(var snippet in me.SelectedProject.Snippets) // TrackSnippetViewModels)
+                foreach (var snippet in me.SelectedProject.Snippets) // TrackSnippetViewModels)
                 {
                     redraw = snippet.ChangeScale(me.Scale, me.Gain);
                 }
@@ -938,7 +921,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     return;
                 }
 
-
                 if (string.IsNullOrWhiteSpace(TranscribeEndpointsVM.SelectedTranscribeEndpoint.Key) || string.IsNullOrWhiteSpace(TranscribeEndpointsVM.SelectedTranscribeEndpoint.Region))
                 {
                     MessageBox.Show("You must enter your Azure Speech Service Key and Service Region.");
@@ -947,13 +929,13 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                 SelectedProject.OriginalFilePath = AudioFilePath;
 
-                        //   SaveProjectsFile();
+                //   SaveProjectsFile();
 
                 LockUserInterface = true;
                 IsTranscribing = true;
                 TranscribeInfo = "";
                 await Task.Delay(10);
-                
+
                 stopRecognition = new TaskCompletionSource<int>();
                 var newCollection = new List<TrackSnippetViewModel>();
 
@@ -973,7 +955,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 {
                     Debug.WriteLine($"Error: EndTranscribe: {excp}");
                 }
-                
+
                 ///
                 /// Finished recognition, now make files
                 ///
@@ -986,8 +968,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 var ix = 1;
                 foreach (var snippet in newCollection)
                 {
-                    MakeSnippetAudioFiles(snippet, ix++, SampleLengthSeconds);
-                 //   TrackSnippetViewModels.Add(snippet);
+                    MakeSnippetAudioFiles(snippet, ix++);
+                    //   TrackSnippetViewModels.Add(snippet);
                 }
 
                 await parentControl.Dispatcher.Invoke(async () =>
@@ -1079,7 +1061,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                             {
                                 if (a > txtCnt - 1)
                                 {
-                                    dyn.Notes += $"[new={txtCnt-a}]";
+                                    dyn.Notes += $"[new={txtCnt - a}]";
                                     break;
                                 }
                                 if (ary[a].Trim() != textPartsAll[a].Text.Trim())
@@ -1107,7 +1089,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                                 }
 
                                 var newBit = "";
-                                for (var x = goodTextParts.Count;  x < ary.Length; x++)
+                                for (var x = goodTextParts.Count; x < ary.Length; x++)
                                 {
                                     newBit += ary[x] + " ";
                                 }
@@ -1115,20 +1097,20 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                                 // 200 magic number - identification time about 200 mills
                                 detectedEstimate = e.Result.Duration.TotalMilliseconds - 200;
 
-                                var sinceLastEvent = detectedEstimate - lastMillisecondsTotal; 
+                                var sinceLastEvent = detectedEstimate - lastMillisecondsTotal;
                                 if (sinceLastEvent < 1)
                                 {
                                     sinceLastEvent = 1;
                                 }
 
-                                var cnt = goodTextParts.Count();
+                                var cnt = goodTextParts.Count;
 
                                 if (cnt > 1 && !isChange)
                                 {
                                     if (sinceLastEvent < ADJUSTED_SIZE_MAX_WORD_LENGTH)
                                     {
-                                        dyn.Notes += $"[adj={cnt-1}, snc={sinceLastEvent}, lgt={goodTextParts[cnt - 1].TextWidth} - {(ADJUSTED_SIZE_MAX_WORD_LENGTH - sinceLastEvent)}]";
-                                        goodTextParts[cnt - 1].TextWidth -= (ADJUSTED_SIZE_MAX_WORD_LENGTH - sinceLastEvent); 
+                                        dyn.Notes += $"[adj={cnt - 1}, snc={sinceLastEvent}, lgt={goodTextParts[cnt - 1].TextWidth} - {ADJUSTED_SIZE_MAX_WORD_LENGTH - sinceLastEvent}]";
+                                        goodTextParts[cnt - 1].TextWidth -= (ADJUSTED_SIZE_MAX_WORD_LENGTH - sinceLastEvent);
                                     }
                                 }
 
@@ -1137,7 +1119,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                             }
                             catch (Exception ex)
                             {
-
                                 throw;
                             }
                             finally
@@ -1145,7 +1126,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                                 log += JsonConvert.SerializeObject(dyn) + Environment.NewLine;
                             }
                             lastMillisecondsTotal = detectedEstimate; // start point for next text
-                 //           lastCharLength = textBit.Length;
+                                                                      //           lastCharLength = textBit.Length;
 
                             textPartsAll = goodTextParts;
                         };
@@ -1155,7 +1136,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                             if (e.Result.Reason == ResultReason.RecognizedSpeech)
                             {
                                 //Console.WriteLine($"RECOGNIZED: Text={e.Result.Text}");
-                                var snippet = new TrackSnippetViewModel
+                                var snippet = new TrackSnippetViewModel()
                                 {
                                     AudioSnippet = e.Result,
                                     Scale = scale,
@@ -1163,7 +1144,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                                     RawText = e.Result.Text,
                                     OffsetInTicks = e.Result.OffsetInTicks
                                 };
-                                
+
                                 snippet.DurationMilliseconds = e.Result.Duration.TotalMilliseconds; //WavFileUtils.GetSoundLength(AudioFilePath);
 
                                 //var rawAry = e.Result.Text.Split(' ');
@@ -1181,11 +1162,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                                 snippet.TextParts = new ObservableCollection<TextPart>(textPartsAll);
 
-
-                                parentControl.Dispatcher.Invoke(() =>
-                                {
-                                    newCollection.Add(snippet);
-                                });
+                                parentControl.Dispatcher.Invoke(() => newCollection.Add(snippet));
 
                                 textPartsAll = new List<TextPart>();
                                 lastMillisecondsTotal = 0;
@@ -1208,10 +1185,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                             stopRecognition.TrySetResult(0);
                         };
 
-                        recognizer.SessionStarted += (s, e) =>
-                        {
-                            Console.WriteLine("\n    Session started event.");
-                        };
+                        recognizer.SessionStarted += (s, e) => Console.WriteLine("\n    Session started event.");
 
                         recognizer.SessionStopped += (s, e) =>
                         {
@@ -1252,14 +1226,15 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     }
                     catch (Exception ex)
                     {
-
                         throw;
                     }
                 }
             }
         }
 
-        private void MakeSnippetAudioFiles(TrackSnippetViewModel snippet, int ix, double totalDurationSeconds)
+        private void MakeSnippetAudioFiles(
+            TrackSnippetViewModel snippet,
+            int ix)
         {
             var newProjectFolder = Path.Combine(Settings.Default.ProjectsFolder, SelectedProject.Name, $"{DateTime.Now.ToString("ddMMyyyyHHmmss")}");
             Directory.CreateDirectory(newProjectFolder);
@@ -1271,21 +1246,21 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             WavFileUtils.TakeClipAddSilence(AudioFilePath, TimeSpan.Zero, startTime, snippet.AudioSnippet.Duration, snippet.FilePath);
         }
 
-
-        public ProjectViewModel(FrameworkElement ParentControl, DE_VTT_Project project)
+        public ProjectViewModel(FrameworkElement ParentControl, DE_VTT_Project project, bool showImportSection)
         {
             parentControl = ParentControl;
 
             TranscribeEndpointsVM = new TranscribeEndpointsViewModel(SettingsVM);
             VoiceEndpointsVM = new VoiceEndpointsViewModel(SettingsVM);
 
-            Messenger.Default.Register<string>(this, doProcessMessage);
+            Messenger.Default.Register<string>(this, DoProcessMessage);
 
             SelectedProject = project;
 
             LoadFilesFromSelectedFolder();
 
-            scaleChangedTimer = new Timer(scaleTick, this, Timeout.Infinite, Timeout.Infinite);
+            scaleChangedTimer = new Timer(ScaleTick, this, Timeout.Infinite, Timeout.Infinite);
+            this.showImportSection = showImportSection;
         }
     }
 }

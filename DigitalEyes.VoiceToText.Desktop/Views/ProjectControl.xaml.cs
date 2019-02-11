@@ -38,18 +38,19 @@ namespace DigitalEyes.VoiceToText.Desktop.Views
         public ProjectControl(DE_VTT_Project project)
         {
             InitializeComponent();
-            timer = new DispatcherTimer(TimeSpan.FromMilliseconds(300), DispatcherPriority.Normal, tick, this.Dispatcher);
+            timer = new DispatcherTimer(TimeSpan.FromMilliseconds(300), DispatcherPriority.Normal, Tick, this.Dispatcher);
 
-            ViewModel = new ProjectViewModel(this, project);
+            var showImport = project.Snippets.Count > 0;
+            ViewModel = new ProjectViewModel(this, project, showImport);
             DataContext = ViewModel;
         }
-        
-        private void tick(object sender, EventArgs e)
+
+        private void Tick(object sender, EventArgs e)
         {
             // LoadPoints();
         }
 
-        DispatcherTimer timer;
+        private readonly DispatcherTimer timer;
 
         private void LstSnippets_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -64,7 +65,6 @@ namespace DigitalEyes.VoiceToText.Desktop.Views
                 ViewModel.SampleLengthSeconds = ViewModel.CurrentAudioVM.Duration.TimeSpan.TotalSeconds; // WavFileUtils.GetSoundLength(ViewModel.AudioFilePath);
                 ViewModel.TranscribeNewFile();
             });
-
         }
 
         private void OnTargetUpdated(object sender, DataTransferEventArgs e)
@@ -89,7 +89,7 @@ namespace DigitalEyes.VoiceToText.Desktop.Views
             vm.CreatePlayerStoryboard(mediaElement);
         }
 
-        private async void btnStopClick(object sender, RoutedEventArgs e)
+        private async void BtnStopClick(object sender, RoutedEventArgs e)
         {
             var ctrl = sender as Button;
             var vm = ctrl.DataContext as TrackSnippetViewModel;
@@ -101,7 +101,7 @@ namespace DigitalEyes.VoiceToText.Desktop.Views
             vm.TrackStopCommand.Execute(vm.PlayerStoryboard);
         }
 
-        private async void btnPauseClick(object sender, RoutedEventArgs e)
+        private async void BtnPauseClick(object sender, RoutedEventArgs e)
         {
             var ctrl = sender as Button;
             var vm = ctrl.DataContext as TrackSnippetViewModel;
@@ -119,30 +119,29 @@ namespace DigitalEyes.VoiceToText.Desktop.Views
 
             // TO DO: Yuk. Below SETS the IsPaused flag, so is after the MarkerStoryBoard which needs current state
             vm.TrackPauseCommand.Execute(vm.PlayerStoryboard);
-
         }
 
-        private void btnMergeClick(object sender, RoutedEventArgs e)
+        private void BtnMergeClick(object sender, RoutedEventArgs e)
         {
             var ctrl = sender as Button;
             var vm = ctrl.DataContext as TrackSnippetViewModel;
             vm.SelectedWordsMergeCommand.Execute(this);
         }
 
-        private void btnRightSpacerClick(object sender, RoutedEventArgs e)
+        private void BtnRightSpacerClick(object sender, RoutedEventArgs e)
         {
             var ctrl = sender as Button;
             var vm = ctrl.DataContext as TrackSnippetViewModel;
             vm.AddSpaceBeforeCommand.Execute(this);
         }
 
-        private void evtBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+        private void EvtBringIntoView(object sender, RequestBringIntoViewEventArgs e)
         {
             // Prevent scrolling, so it doesn't move when selected through trying to move the thumb
             e.Handled = true;
         }
-        
-        private void btnChooseFolder(object sender, RoutedEventArgs e)
+
+        private void BtnChooseFolder(object sender, RoutedEventArgs e)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog { ShowNewFolderButton = false };
             dialog.SelectedPath = ViewModel.FilesFolder;
@@ -150,10 +149,10 @@ namespace DigitalEyes.VoiceToText.Desktop.Views
             ViewModel.FilesFolder = dialog.SelectedPath;
         }
 
-        bool isMovingTextStart;
-        bool isMovingTextEnd;
-        Point startPos;
-        TextPart currentMovingTextPart;
+        private bool isMovingTextStart;
+        private bool isMovingTextEnd;
+        private Point startPos;
+        private TextPart currentMovingTextPart;
 
         private void StartThumbMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -236,9 +235,6 @@ namespace DigitalEyes.VoiceToText.Desktop.Views
             }
         }
 
-        public void Dispose()
-        {
-            ViewModel.CheckForChanges();
-        }
+        public void Dispose() => ViewModel.CheckForChanges();
     }
 }

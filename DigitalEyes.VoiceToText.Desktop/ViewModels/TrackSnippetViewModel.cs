@@ -23,50 +23,40 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
     public class TrackSnippetViewModel : BaseViewModel, IDisposable
     {
         private System.Windows.Shapes.Rectangle markerRectangle;
+
         public System.Windows.Shapes.Rectangle MarkerRectangle
         {
             get
             {
-                if (markerRectangle == null)
-                {
-                    markerRectangle = new System.Windows.Shapes.Rectangle
+                return markerRectangle ?? (markerRectangle = new System.Windows.Shapes.Rectangle
                     {
                         Opacity = 0.4,
                         VerticalAlignment = VerticalAlignment.Top,
                         Fill = System.Windows.Media.Brushes.Red,
                         Height = 100,
                         HorizontalAlignment = System.Windows.HorizontalAlignment.Left
-                    };
-                }
-                return markerRectangle;
-            }
-        }
-        
-        System.Threading.Timer selectionChangedTimer;
-        System.Threading.Timer SelectionChangedTimer
-        {
-            get
-            {
-                if (selectionChangedTimer == null)
-                {
-                    selectionChangedTimer = new System.Threading.Timer(doSelectionMatch, null, Timeout.Infinite, Timeout.Infinite);
-                }
-                return selectionChangedTimer;
+                    });
             }
         }
 
-        string rawText;
+        private Timer selectionChangedTimer;
+
+        private Timer SelectionChangedTimer
+        {
+            get
+            {
+                return selectionChangedTimer ?? (selectionChangedTimer = new System.Threading.Timer(DoSelectionMatch, null, Timeout.Infinite, Timeout.Infinite));
+            }
+        }
+
+        private string rawText;
+
         [DataMember]
         public string RawText
         {
             get
             {
-                if (rawText == null)
-                {
-                    rawText = FullText;
-                }
-
-                return rawText;
+                return rawText ?? (rawText = FullText);
             }
             set
             {
@@ -74,37 +64,27 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        long offsetInTicks;
         [DataMember]
-        public long OffsetInTicks
-        {
-            get
-            {
-                return offsetInTicks;
-            }
-            set
-            {
-                offsetInTicks = value;
-            }
-        }
+        public long OffsetInTicks { get; set; }
 
         [IgnoreDataMember]
         public TrackSnippetWorkReport WorkReport
         {
             get
             {
-                var numberOfApproved = TextParts.Where(a => a.IsOK).Count();
+                var numberOfApproved = TextParts.Count(a => a.IsOK);
                 var workReport = new TrackSnippetWorkReport
                 {
                     TotalParts = TextParts.Count(),
-                    TotalApproved = TextParts.Where(a=>a.IsOK).Count(),
+                    TotalApproved = TextParts.Count(a=>a.IsOK),
                     HasApproved = numberOfApproved > 0
                 };
                 return workReport;
             }
         }
-        
-        bool isDrawn;
+
+        private bool isDrawn;
+
         [IgnoreDataMember]
         public bool IsDrawn
         {
@@ -145,7 +125,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        bool showWait;
+        private bool showWait;
+
         [IgnoreDataMember]
         public bool ShowWait
         {
@@ -163,95 +144,76 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
+        private RelayCommand<TextPart> playThisBitCommand;
 
-        RelayCommand<TextPart> playThisBitCommand;
         [IgnoreDataMember]
         public RelayCommand<TextPart> PlayThisBitCommand
         {
             get
             {
-                if (playThisBitCommand == null)
-                {
-                    playThisBitCommand = new RelayCommand<TextPart>(doPlayTextPart);
-                }
-                return playThisBitCommand;
+                return playThisBitCommand ?? (playThisBitCommand = new RelayCommand<TextPart>(DoPlayTextPart));
             }
         }
 
-        RelayCommand showStatsCommand;
+        private RelayCommand showStatsCommand;
+
         [IgnoreDataMember]
         public RelayCommand ShowStatsCommand
         {
             get
             {
-                if (showStatsCommand == null)
-                {
-                    showStatsCommand = new RelayCommand(doshowStats);
-                }
-                return showStatsCommand;
+                return showStatsCommand ?? (showStatsCommand = new RelayCommand(DoShowStats));
             }
         }
 
-        private void doshowStats()
+        private void DoShowStats()
         {
             var statsWin = new WaveformStatsWindow { DataContext = AudioVM };
             var win = App.Current.MainWindow;
-            statsWin.Left = (win.Left + win.Width / 2) - (statsWin.Width / 2);
-            statsWin.Top = (win.Top + win.Height / 2) - (statsWin.Height / 2);
+            statsWin.Left = (win.Left + (win.Width / 2)) - (statsWin.Width / 2);
+            statsWin.Top = (win.Top + (win.Height / 2)) - (statsWin.Height / 2);
             statsWin.Show();
         }
 
-        RelayCommand selectedDeleteCommand;
+        private RelayCommand selectedDeleteCommand;
+
         [IgnoreDataMember]
         public RelayCommand SelectedDeleteCommand
         {
             get
             {
-                if (selectedDeleteCommand == null)
-                {
-                    selectedDeleteCommand = new RelayCommand(doSelectedDelete);
-                }
-                return selectedDeleteCommand;
+                return selectedDeleteCommand ?? (selectedDeleteCommand = new RelayCommand(DoSelectedDelete));
             }
         }
 
-        RelayCommand<object> textPartTextChangedCommand;
+        private RelayCommand<object> textPartTextChangedCommand;
+
         [IgnoreDataMember]
         public RelayCommand<object> TextPartTextChangedCommand
         {
             get
             {
-                if (textPartTextChangedCommand == null)
-                {
-                    textPartTextChangedCommand = new RelayCommand<object>(doTextPartTextChanged);
-                }
-                return textPartTextChangedCommand;
+                return textPartTextChangedCommand ?? (textPartTextChangedCommand = new RelayCommand<object>(DoTextPartTextChanged));
             }
         }
 
-        RelayCommand<object> selectionChangedCommand;
+        private RelayCommand<object> selectionChangedCommand;
+
         [IgnoreDataMember]
         public RelayCommand<object> SelectionChangedCommand
         {
             get
             {
-                if (selectionChangedCommand == null)
-                {
-                    selectionChangedCommand = new RelayCommand<object>(doSelectionMatchCommand);
-                }
-                return selectionChangedCommand;
+                return selectionChangedCommand ?? (selectionChangedCommand = new RelayCommand<object>(DoSelectionMatchCommand));
             }
         }
 
-        private void doTextPartTextChanged(object param)
+        private void DoTextPartTextChanged(object param)
         {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                RaisePropertyChanged("FullText");
-            });
+            App.Current.Dispatcher.Invoke(() => RaisePropertyChanged("FullText"));
         }
 
-        private void doSelectedDelete()
+        private void DoSelectedDelete()
         {
             if (SelectedTextParts == null || SelectedTextParts.Count == 0)
             {
@@ -271,22 +233,18 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             RaisePropertyChanged("FullText");
         }
 
-        RelayCommand<string> adjustSelectedCommand;
+        private RelayCommand<string> adjustSelectedCommand;
+
         [IgnoreDataMember]
         public RelayCommand<string> AdjustSelectedCommand
         {
             get
             {
-                if (adjustSelectedCommand == null)
-                {
-                    adjustSelectedCommand = new RelayCommand<string>(doAdjustSelected);
-                }
-
-                return adjustSelectedCommand;
+                return adjustSelectedCommand ?? (adjustSelectedCommand = new RelayCommand<string>(DoAdjustSelected));
             }
         }
 
-        private void doAdjustSelected(string key)
+        private void DoAdjustSelected(string key)
         {
             var ary = key.Split('/');
             var val = int.Parse(ary[1]);
@@ -301,8 +259,9 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     break;
             }
         }
-        
-        bool isSelected;
+
+        private bool isSelected;
+
         [IgnoreDataMember]
         public bool IsSelected
         {
@@ -319,8 +278,9 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
-        Storyboard markerStoryboard;
+
+        private Storyboard markerStoryboard;
+
         [IgnoreDataMember]
         public Storyboard MarkerStoryboard
         {
@@ -336,21 +296,19 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        TranslateTransform markerTransform;
+        private TranslateTransform markerTransform;
+
         [IgnoreDataMember]
         public TranslateTransform MarkerTransform
         {
             get
             {
-                if (markerTransform == null)
-                {
-                    markerTransform = new TranslateTransform(0, 0);
-                }
-                return markerTransform;
+                return markerTransform ?? (markerTransform = new TranslateTransform(0, 0));
             }
         }
 
-        int sampledFrequency;
+        private int sampledFrequency;
+
         [IgnoreDataMember]
         public int SampledFrequency
         {
@@ -368,7 +326,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        bool changeTimeWithSize;
+        private bool changeTimeWithSize;
+
         /// <summary>
         /// If checked, the selectedItems will be moved in time as well as changing size.
         /// This is the same effect as changing the timeline scale, but just for the selected
@@ -390,7 +349,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        System.Windows.Shapes.Rectangle positionMarker;
+        private System.Windows.Shapes.Rectangle positionMarker;
+
         [IgnoreDataMember]
         public System.Windows.Shapes.Rectangle PositionBar
         {
@@ -407,20 +367,17 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
+
         public bool IsPaused { get; set; }
 
-        AudoInfoViewModel audioVM;
+        private AudoInfoViewModel audioVM;
+
         [IgnoreDataMember]
         public AudoInfoViewModel AudioVM
         {
             get
             {
-                if (audioVM == null)
-                {
-                    audioVM = new AudoInfoViewModel();
-                }
-                return audioVM;
+                return audioVM ?? (audioVM = new AudoInfoViewModel());
             }
             set
             {
@@ -431,23 +388,20 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-        
-        RelayCommand selectedWordsMergeCommand;
+
+        private RelayCommand selectedWordsMergeCommand;
+
         [IgnoreDataMember]
         public RelayCommand SelectedWordsMergeCommand
         {
             get
             {
-                if (selectedWordsMergeCommand == null)
-                {
-                    selectedWordsMergeCommand = new RelayCommand(doMergeWords, false);
-                }
-                return selectedWordsMergeCommand;
+                return selectedWordsMergeCommand ?? (selectedWordsMergeCommand = new RelayCommand(DoMergeWords, false));
             }
             set { selectedWordsMergeCommand = value; }
         }
 
-        private void doMergeWords()
+        private void DoMergeWords()
         {
             var cnt = SelectedTextParts.Count;
 
@@ -501,22 +455,19 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             RaisePropertyChanged("FullText");
         }
 
-        RelayCommand addSpaceBeforeCommand;
+        private RelayCommand addSpaceBeforeCommand;
+
         [IgnoreDataMember]
         public RelayCommand AddSpaceBeforeCommand
         {
             get
             {
-                if (addSpaceBeforeCommand == null)
-                {
-                    addSpaceBeforeCommand = new RelayCommand(doAddSpaceBefore, false);
-                }
-                return addSpaceBeforeCommand;
+                return addSpaceBeforeCommand ?? (addSpaceBeforeCommand = new RelayCommand(DoAddSpaceBefore, false));
             }
             set { addSpaceBeforeCommand = value; }
         }
 
-        private void doAddSpaceBefore()
+        private void DoAddSpaceBefore()
         {
             if (SelectedTextParts.Count == 0)
             {
@@ -539,7 +490,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 {
                     // Found first word and index
                     newSpace.StartMills = part.StartMills;
-                    
+
                     for (var i = collectionIndex+1; i < TextParts.Count; i++)
                     {
                         TextParts[i].StartMills += 1000;
@@ -556,7 +507,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
         internal void SelectedTextChange(double widthChangeDelta)
         {
-
             var scaledDelta = widthChangeDelta / Scale;
             var cumulativeShift = scaledDelta / 2;
 
@@ -579,22 +529,19 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         }
 
         [IgnoreDataMember]
-        RelayCommand trackStopCommand;
+        private RelayCommand trackStopCommand;
+
         public RelayCommand TrackStopCommand
         {
             get
             {
-                if (trackStopCommand == null)
-                {
-                    trackStopCommand = new RelayCommand(doTrackStop, false);
-                }
-                return trackStopCommand;
+                return trackStopCommand ?? (trackStopCommand = new RelayCommand(DoTrackStop, false));
             }
             set { trackStopCommand = value; }
         }
 
         [IgnoreDataMember]
-        RelayCommand trackPauseCommand;
+        private RelayCommand trackPauseCommand;
 
         //internal void MarkerStoryboard_Begin()
         //{
@@ -604,16 +551,13 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         {
             get
             {
-                if (trackPauseCommand == null)
-                {
-                    trackPauseCommand = new RelayCommand(doTrackPause, false);
-                }
-                return trackPauseCommand;
+                return trackPauseCommand ?? (trackPauseCommand = new RelayCommand(DoTrackPause, false));
             }
             set { trackPauseCommand = value; }
         }
 
-        double playLength;
+        private double playLength;
+
         [IgnoreDataMember]
         public double PlayPartLength
         {
@@ -631,9 +575,10 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        System.Threading.Timer playTimer;
+ //       System.Threading.Timer playTimer;
 
-        string fullText;
+        private string fullText;
+
         public string FullText
         {
             get
@@ -647,25 +592,21 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
+        private RelayCommand trackStartCommand;
 
-        RelayCommand trackStartCommand;
         [IgnoreDataMember]
         public RelayCommand TrackStartCommand
         {
             get
             {
-                if (trackStartCommand == null)
-                {
-                    trackStartCommand = new RelayCommand(doTrackStart, false);
-                }
-                return trackStartCommand;
+                return trackStartCommand ?? (trackStartCommand = new RelayCommand(DoTrackStart, false));
             }
             set { trackStartCommand = value; }
         }
 
-        TimeSpan? endAnimationTime;
+        private TimeSpan? endAnimationTime;
 
-        private async void doTrackStart()
+        private async void DoTrackStart()
         {
             await Task.Delay(100);
             if (partPlayStart != TimeSpan.Zero)
@@ -696,20 +637,20 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        private void doTrackPartEnd(object state)
-        {
-            playTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        //private void doTrackPartEnd(object state)
+        //{
+        //    playTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                PlayerStoryboard.Stop();
-                MarkerStoryboard.Stop();
+        //    App.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        PlayerStoryboard.Stop();
+        //        MarkerStoryboard.Stop();
 
-                SeekToMousePointInTime(partPlayStart);
-            });
-        }
+        //        SeekToMousePointInTime(partPlayStart);
+        //    });
+        //}
 
-        TimeSpan partPlayStart = TimeSpan.Zero;
+        private TimeSpan partPlayStart = TimeSpan.Zero;
 
         internal void SeekToMousePointInTime(TimeSpan seekTime)
         {
@@ -728,12 +669,12 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             PlayerStoryboard.Pause(mediaElement); // stop doesn't work
         }
 
-        private void doTrackStop()
+        private void DoTrackStop()
         {
             PlayerStoryboard.Stop(mediaElement);
         }
 
-        private void doTrackPause()
+        private void DoTrackPause()
         {
             if (!IsPaused)
             {
@@ -756,7 +697,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             MarkerStoryboard.Resume(PositionBar);
         }
 
-        Storyboard playerStoryboard;
+        private Storyboard playerStoryboard;
+
         [IgnoreDataMember]
         public Storyboard PlayerStoryboard
         {
@@ -774,16 +716,16 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        MediaElement mediaElement;
+        private MediaElement mediaElement;
 
         internal void MarkerStoryboard_Pause()
         {
             MarkerStoryboard.Pause(PositionBar);
         }
 
-        double scaleChangeDelta = 0;
-        double scale = 0.1;
-        bool initialised;
+        private double scaleChangeDelta = 0;
+        private double scale = 0.1;
+
         [DataMember]
         public double Scale
         {
@@ -811,7 +753,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        double gain;
+        private double gain;
+
         [DataMember]
         public double Gain
         {
@@ -860,35 +803,20 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
         [IgnoreDataMember]
         public SpeechRecognitionResult AudioSnippet { get; set; }
-        string filePath;
 
         [DataMember]
-        public string FilePath
-        {
-            get
-            {
-                return filePath;
-            }
-            set
-            {
-                filePath = value;
-                //DurationMilliseconds = WavFileUtils.GetSoundLength(value);
-            }
-        }
+        public string FilePath { get; set; }
 
         // public WaveViewer Viewer { get; set; }
 
-        ObservableCollection<TextPart> selectedTextParts;
+        private ObservableCollection<TextPart> selectedTextParts;
+
         [IgnoreDataMember]
         public ObservableCollection<TextPart> SelectedTextParts
         {
             get
             {
-                if (selectedTextParts == null)
-                {
-                    selectedTextParts = new ObservableCollection<TextPart>();
-                }
-                return selectedTextParts;
+                return selectedTextParts ?? (selectedTextParts = new ObservableCollection<TextPart>());
             }
             set
             {
@@ -900,15 +828,14 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        string dummyText;
+        private ObservableCollection<TextPart> textParts;
 
-        ObservableCollection<TextPart> textParts;
         [DataMember]
         public ObservableCollection<TextPart> TextParts
         {
             get
             {
-                if (textParts != null && textParts.Count > 0 && textParts[0].StartMills == 0)
+                if (textParts?.Count > 0 && textParts[0].StartMills == 0)
                 {
                     // temp hack so the play function doesn't think it's at the start and should play the whole track.
                     // See doTrackStart() - "TimeSpan.Zero" condition
@@ -926,18 +853,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        public string DummyText
-        {
-            get
-            {
-                return dummyText;
-            }
-            set
-            {
-                dummyText = value;
-            }
-        }
-        
+        public string DummyText { get; set; }
+
         public string Text
         {
             get
@@ -946,8 +863,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 {
                     return AudioSnippet.Text;
                 }
-                
-                return dummyText;
+
+                return DummyText;
             }
         }
 
@@ -955,7 +872,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         {
             ChangeScale(Scale, gain);
         }
-        
+
         internal bool ChangeScale(double scale, double gain)
         {
             if (scale == Scale && gain == Gain)
@@ -1007,23 +924,12 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         {
             get
             {
-                return (DurationMilliseconds * Scale); //0.1 scale = 10 miliseconds = 1 pixel 22 seconds = 2200 pixels 
+                return DurationMilliseconds * Scale; //0.1 scale = 10 miliseconds = 1 pixel 22 seconds = 2200 pixels 
             }
         }
 
-        double durationMilliseconds;
         [DataMember]
-        public double DurationMilliseconds
-        {
-            get
-            {
-                return durationMilliseconds;
-            }
-            set
-            {
-                durationMilliseconds = value;
-            }
-        }
+        public double DurationMilliseconds { get; set; }
 
         public void CreatePlayerStoryboard(MediaElement MediaElement)
         {
@@ -1036,8 +942,10 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             //_audioMediaElement.LoadedBehavior = MediaState.Manual;
             //_audioMediaElement.UnloadedBehavior = MediaState.Manual;
             //PlayerStoryboard Storyboard.SetTargetName(_audioTimeline, _audioMediaElement.Name);
-            Storyboard _packageStoryBoard = new Storyboard();
-            _packageStoryBoard.SlipBehavior = SlipBehavior.Slip;
+            Storyboard _packageStoryBoard = new Storyboard
+            {
+                SlipBehavior = SlipBehavior.Slip
+            };
             _packageStoryBoard.Children.Add(_audioTimeline);
             //_packageStoryBoard.Children.Add(_imageTimeline);|
             //_packageStoryBoard.Begin(this);
@@ -1056,7 +964,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
 
             ClockGroup clockGroup = sender as ClockGroup;
-            if (clockGroup != null)
+            if (clockGroup?.Children.Count > 0)
             {
                 AnimationClock mediaClock = clockGroup.Children[0] as AnimationClock;
                 if (mediaClock.CurrentProgress.HasValue)
@@ -1070,12 +978,12 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
         }
 
         private void Storyboard_Changed(object sender, EventArgs e)
-        { 
+        {
             if (endAnimationTime == null)
             {
                 return;
             }
-            
+
             ClockGroup clockGroup = sender as ClockGroup;
             if (clockGroup != null)
             {
@@ -1090,7 +998,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        private void doPlayTextPart(TextPart tp)
+        private void DoPlayTextPart(TextPart tp)
         {
             PlayerStoryboard.Stop(mediaElement);
             MarkerStoryboard.Stop(PositionBar);
@@ -1099,7 +1007,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             var scaledStartMills = tp.StartMills;
 
             var seekTime = TimeSpan.FromMilliseconds(scaledStartMills);
-            
+
             MarkerRectangle.Margin = new Thickness(scaledStartMills * Scale, 0, 0, 0);
             MarkerRectangle.Width = PlayPartLength * Scale;
             SeekToMousePointInTime(seekTime);
@@ -1158,7 +1066,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
-        int pointsCount;
+        private int pointsCount;
+
         [DataMember]
         public int PointsCount
         {
@@ -1176,8 +1085,8 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             }
         }
 
+        private SampleAggregator aggregator;
 
-        SampleAggregator aggregator;
         [IgnoreDataMember]
         public SampleAggregator Aggregator
         {
@@ -1199,19 +1108,19 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             sampledFrequency = e.TotalPoints;
         }
 
-        RoutedEventArgs lastRoutedArgs = null;
+        private RoutedEventArgs lastRoutedArgs = null;
 
-        private void doSelectionMatchCommand(object state)   // Not working
+        private void DoSelectionMatchCommand(object state)   // Not working
         {
             lastRoutedArgs = state as RoutedEventArgs;
             SelectionChangedTimer.Change(500, Timeout.Infinite);
         }
 
-        private async void doSelectionMatch(object state)
+        private async void DoSelectionMatch(object state)
         {
             SelectionChangedTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            await App.Current.Dispatcher.Invoke(async () => 
+            await Application.Current.Dispatcher.Invoke(async () =>
             {
                 var lastSelectionTextbox = lastRoutedArgs.OriginalSource as System.Windows.Controls.TextBox;
 
@@ -1228,7 +1137,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                 var selectedText = lastSelectionTextbox.SelectedText.Trim();
 
-                if (selectedText == "")
+                if (selectedText?.Length == 0)
                 {
                     return;
                 }
@@ -1239,7 +1148,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                 var cumulativeText = "";
                 var foundText = "";
-                
+
                 foreach (var txt in TextParts)
                 {
                     cumulativeText += txt.Text + " ";
@@ -1265,10 +1174,11 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 aggregator.MaximumCalculated -= Aggregator_MaximumCalculated;
             }
         }
-        
+
         public TrackSnippetViewModel()
         {
-
+         //   this.selectedDeleteCommand = selectedDeleteCommand;
+         //   this.markerStoryboard = markerStoryboard;
         }
     }
 }
