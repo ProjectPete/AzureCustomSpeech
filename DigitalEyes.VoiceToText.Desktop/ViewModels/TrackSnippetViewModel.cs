@@ -19,6 +19,13 @@ using System.Windows.Media.Animation;
 
 namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 {
+    /// <summary>
+    /// Pete Laker - PEJL @ 2019
+    /// Forgive me for the unstructured code (private/public order, constructor, etc. 
+    /// I rushed this out as fast as I could, to show Cognitive Services. NOT to demonstrate my awesome coding skillz! 
+    /// This is the view model for each "snippet", listed vertically in each "project"
+    /// It manages the 20 second "snippet" functions. Including play/pause, merge texts, widen and moving "wordparts" (single words or grouped words (utterances).
+    /// </summary>
     [DataContract]
     public class TrackSnippetViewModel : BaseViewModel, IDisposable
     {
@@ -99,21 +106,11 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                     isDrawn = value;
                     RaisePropertyChanged("IsDrawn");
                     RaisePropertyChanged("IsDrawnInverted");
-
-                    App.Current.Dispatcher.Invoke(() =>
-                    {
-                        ShowWait = true;
-                        //await Task.Delay(50).ConfigureAwait(false);
-                        Messenger.Default.Send("Scale", "TrackSnippetViewModel");
-
-                        if (!value)
-                        {
-                            RaisePropertyChanged("WorkReport"); // recalculate stats
-                        }
-
-                        ShowWait = false;
-                    });
+                    RaisePropertyChanged("WorkReport"); // recalculate stats
+                    Messenger.Default.Send("Scale", "TrackSnippetViewModel");
                 }
+
+                ShowWait = false;
             }
         }
 
@@ -475,31 +472,17 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 return;
             }
 
-            TextPart firstWord = SelectedTextParts[0];
+            TextPart firstWord = SelectedTextParts.OrderBy(a => a.StartMills).First();
             int collectionIndex = 0;
 
             TextPart newSpace = new TextPart
             {
-                TextWidth = 100,
-                Text = " "
+                TextWidth = 500,
+                Text = "???"
             };
 
-            foreach (var part in TextParts)
-            {
-                if (part == firstWord)
-                {
-                    // Found first word and index
-                    newSpace.StartMills = part.StartMills;
-
-                    for (var i = collectionIndex+1; i < TextParts.Count; i++)
-                    {
-                        TextParts[i].StartMills += 1000;
-                    }
-                    break;
-                }
-                collectionIndex++;
-            }
-
+            newSpace.StartMills = firstWord.StartMills - newSpace.TextWidth - 100;
+            
             TextParts.Insert(collectionIndex, newSpace);
 
             RaisePropertyChanged("FullText");
@@ -737,16 +720,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             {
                 if (scale != value)
                 {
-                    //if (initialised)
-                    //{
-                        scaleChangeDelta = value / scale;
-                    //}
-                    //else
-                    //{
-                    //    scaleChangeDelta = 0;
-                    //    initialised = true;
-                    //}
-
+                    scaleChangeDelta = value / scale;
                     scale = value;
                     RaisePropertyChanged("Scale");
                 }
@@ -775,23 +749,6 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 }
             }
         }
-
-        //[DataMember]
-        //public int NotificationCount
-        //{
-        //    get
-        //    {
-        //        return Aggregator.NotificationCount;
-        //    }
-        //    set
-        //    {
-        //        if (Aggregator.NotificationCount != value)
-        //        {
-        //            Aggregator.NotificationCount = value;
-        //            RaisePropertyChanged("NotificationCount");
-        //        }
-        //    }
-        //}
 
         internal void SelectedTextMove(double MillsChangeDelta)
         {

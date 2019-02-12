@@ -129,12 +129,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers\CrisClient.cs" />
     <Compile Include="Helpers\MultiselectionChangedHandler.cs" />
+    <Compile Include="Helpers\REST_FormFileUpload.cs" />
     <Compile Include="Models\ErrorMessage.cs" />
+    <Compile Include="Models\REST_CustomVoiceUploadForm.cs" />
+    <Compile Include="ViewModels\REST_UploadCustomVoice.cs" />
     <Compile Include="Views\AudioAndMarkerControl.xaml.cs">
       <DependentUpon>AudioAndMarkerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\TextToSpeechManager.cs" />
+    <Compile Include="ViewModels\REST_TextToSpeech.cs" />
     <Compile Include="Models\DecibelPeakProvider.cs" />
     <Compile Include="Models\IPeakProvider.cs" />
     <Compile Include="Models\IWaveFormRenderer.cs" />

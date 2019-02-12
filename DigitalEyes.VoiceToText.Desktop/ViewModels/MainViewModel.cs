@@ -16,6 +16,12 @@ using System.Xml;
 
 namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 {
+    /// <summary>
+    /// Pete Laker - PEJL @ 2019
+    /// Forgive me for the unstructured code (private/public order, constructor, etc. 
+    /// I rushed this out as fast as I could, to show Cognitive Services. NOT to demonstrate my awesome coding skillz! 
+    /// This is the view model that wraps around all the rest.
+    /// </summary>
     internal class MainViewModel : BaseViewModel
     {
         private readonly Window parentControl;

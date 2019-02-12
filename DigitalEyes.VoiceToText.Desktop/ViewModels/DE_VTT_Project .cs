@@ -10,13 +10,25 @@ using System.Threading.Tasks;
 
 namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 {
+    /// <summary>
+    /// Pete Laker - PEJL @ 2019
+    /// This is the "project" model. These classes are saved to JSON, as a quick n dirty repository (database hack)
+    /// </summary>
     [DataContract]
     public class DE_VTT_Project
     {
+        public DE_VTT_Project()
+        {
+            if (Snippets == null)
+            {
+                Snippets = new ObservableCollection<TrackSnippetViewModel>();
+            }
+        }
+
         [DataMemberAttribute]
         public string Name { get; set; }
         [DataMemberAttribute]
-        public ObservableCollection<TrackSnippetViewModel> Snippets { get; set; } = new ObservableCollection<TrackSnippetViewModel>();
+        public ObservableCollection<TrackSnippetViewModel> Snippets { get; set; }
         [DataMemberAttribute]
         public string OriginalFilePath { get; set; }
 

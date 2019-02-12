@@ -24,6 +24,13 @@ using DigitalEyes.VoiceToText.Desktop.Helpers;
 
 namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 {
+    /// <summary>
+    /// Pete Laker - PEJL @ 2019
+    /// Forgive me for the unstructured code (private/public order, constructor, etc. 
+    /// I rushed this out as fast as I could, to show Cognitive Services. NOT to demonstrate my awesome coding skillz! 
+    /// This is the view model for each "project", which is loaded from the top left combo box.
+    /// It manages all the "snippets" (20 second clips of transcriptions) and most of the tools on the page.
+    /// </summary>
     public class ProjectViewModel : BaseViewModel
     {
         private const int ADJUSTED_SIZE_MAX_WORD_LENGTH = 400;
@@ -313,7 +320,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
                 LockUserInterface = true;
 
                 Messenger.Default.Register<string>(this, DoTtsMessage);
-                var textToSpeech = new TextToSpeechManager();
+                var textToSpeech = new REST_TextToSpeech();
 
                 var converted = false;
                 var exportFolers = new List<string>();
@@ -509,7 +516,7 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
 
                     parentControl.Dispatcher.Invoke(() =>
                     {
-                        LoadProject(value);
+                        LoadProject(value).Wait();
                         GenerateCustomArtefactsCommand.RaiseCanExecuteChanged();
                         projectAsJsonForLaterChangeCheck = JsonConvert.SerializeObject(selectedProject);
                     });
@@ -542,14 +549,13 @@ namespace DigitalEyes.VoiceToText.Desktop.ViewModels
             try
             {
                 LockUserInterface = true;
-                await Task.Delay(10).ConfigureAwait(false);
+                //await Task.Delay(10).ConfigureAwait(false);
                 SelectedProject = value;
 
                 AudioFilePath = value.OriginalFilePath;
 
                 if (SelectedProject.Snippets.Count == 0)
                 {
-
                     parentControl.Dispatcher.Invoke(() =>
                     {
                         ShowImportSection = true;

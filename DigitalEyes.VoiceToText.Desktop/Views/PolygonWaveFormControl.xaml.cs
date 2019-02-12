@@ -3,6 +3,7 @@ using DigitalEyes.VoiceToText.Desktop.ViewModels;
 using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,6 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
+/// <summary>
+/// Pete Laker - PEJL @ 2019
+/// This is the control that displays the sound pattern. 
+/// I lifted the original polygon WaveFoormControl some time ago, so I'm not sure who credits go to.
+/// https://github.com/naudio/NAudio/blob/master/NAudioWpfDemo/PolygonWaveFormControl.xaml NAudio maybe.
+/// Forgive me for the unstructured code (private/public order, constructor, etc. 
+/// I wrote this as fast as I could, to show Cognitive Services, not demonstrate my awesome coding skillz. 
+/// </summary>
 namespace DigitalEyes.VoiceToText.Desktop
 {
     /// <summary>
@@ -133,6 +142,9 @@ namespace DigitalEyes.VoiceToText.Desktop
         private readonly Polygon waveForm = new Polygon { HorizontalAlignment = HorizontalAlignment.Left };
         private TrackSnippetViewModel vm = null;
 
+        /// <summary>
+        /// I love you
+        /// </summary>
         public PolygonWaveFormControl()
         {
             InitializeComponent();
@@ -191,17 +203,22 @@ namespace DigitalEyes.VoiceToText.Desktop
             mainGrid.Children.Add(ruler);
         }
 
-        private void DoMessage(string msg)
+        private async void DoMessage(string msg)
         {
             if (msg == "Scale")
             {
                 renderPosition = 0;
                 ClearAllPoints();
+                await Task.Delay(100);
 
-                if (Visibility == Visibility.Visible)
+                Dispatcher.Invoke(() =>
                 {
-                    RedrawPoints();
-                }
+                    if (Visibility == Visibility.Visible)
+                    {
+                        Task.Delay(100);
+                        RedrawPoints();
+                    }
+                });
             }
         }
 
