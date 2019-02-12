@@ -32,7 +32,7 @@ This project demonstrates how to transcribe audio from your media.
 
 * You can also export the "timed text" in a couple of popular formats. The TTML format will work with the baked in Windows 10 "Films & TV" app.  
 
-https://github.com/ProjectPete/AzureCustomSpeech/blob/master/DigitalEyes.VoiceToText.Desktop/GitHubMedia/Subtitles.PNG
+![Example image](https://github.com/ProjectPete/AzureCustomSpeech/blob/master/DigitalEyes.VoiceToText.Desktop/GitHubMedia/Subtitles.PNG)
 
 
 All you need is a [FREE Azure subscription](https://azure.microsoft.com/en-us/free/) and a [FREE Speech Service key](https://docs.microsoft.com/en-us/azure/cognitive-services/Speech-Service/get-started).
