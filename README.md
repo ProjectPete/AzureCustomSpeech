@@ -1,4 +1,5 @@
-# Azure Cognitive Services - Speech Services
+# Azure Cognitive Services: Free Speech Service
+# A Realistic Sounding Voice of Anyone in Minutes!
 
 ## Video/Audio Transcription, Custom Speech, Subtitling (captioning)
 
