@@ -3,13 +3,14 @@
 
 ## Video/Audio Transcription, Custom Speech, Subtitling (captioning)
 
+
 This project demonstrates how to transcribe audio from your media. 
 
 ![Example image](/DigitalEyes.VoiceToText.Desktop/GitHubMedia/PolishedSnippet.png)
 
 * With this tool, you can then tidy up the transcribed text into bite-sized chunks and feed back into Azure Custom Voice service. 
 
-* In a few simple steps you can recreate the voice and make the original speaker say anything you want!
+* In a few simple steps you can recreate the voice and make the original speaker [say anything you want!](https://social.technet.microsoft.com/wiki/cfs-file.ashx/__key/communityserver-wikis-components-files/00-00-00-00-05/6888.Martin-Fake-Voice-V2.wav)
 
 * You can take as little as ten minutes audio from friends, family or a video of your favourite star. 
 
